@@ -29,7 +29,7 @@ create table CUENTAS
    primary key (ID_USUARIO, ID_CUENTA)
 );
 
-alter table CUENTAS comment 'Unicamente entran aquí los clientes.
+alter table CUENTAS comment 'Unicamente entran aquï¿½ los clientes.
 
 El identif';
 
