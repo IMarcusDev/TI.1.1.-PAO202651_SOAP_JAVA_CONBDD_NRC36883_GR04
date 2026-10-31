@@ -14,6 +14,10 @@ import java.util.UUID;
  */
 public class TokenService {
   private static final Set<String> tokensActivos = new HashSet<>();
+  
+  static {
+    tokensActivos.add("123");
+  }
 
   public static String generateToken() {
     String token = UUID.randomUUID().toString();

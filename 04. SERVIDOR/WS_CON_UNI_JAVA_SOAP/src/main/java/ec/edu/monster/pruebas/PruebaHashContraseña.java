@@ -14,5 +14,7 @@ public class PruebaHashContraseña {
   public static void main(String args[]) {
     System.out.println("msosa - " + HashService.hashPassword("msosa"));
     System.out.println("empl1234 - " + HashService.hashPassword("empl1234"));
+    System.out.println("marcos - " + HashService.hashPassword("marcos"));
+
   }
 }
