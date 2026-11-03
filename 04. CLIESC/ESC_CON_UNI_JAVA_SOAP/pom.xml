@@ -104,6 +104,34 @@
                 </executions>
             </plugin>
 
+            <!-- Leaves a copy of config.properties next to the jar, so the server address
+                 can be changed by editing one file without recompiling or opening the jar. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+                <executions>
+                    <execution>
+                        <id>copiar-configuracion</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/src/main/resources</directory>
+                                    <includes>
+                                        <include>config.properties</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <!-- Packages the client as one runnable jar: main class + Metro on the
                  classpath. ServicesResourceTransformer keeps the META-INF/services
                  files that JAX-WS needs to find its implementation at runtime. -->

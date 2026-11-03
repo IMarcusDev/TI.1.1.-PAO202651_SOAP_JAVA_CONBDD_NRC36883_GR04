@@ -41,7 +41,7 @@ public final class App {
     private static void iniciar() {
         Configuracion configuracion;
         try {
-            configuracion = Configuracion.desdeClasspath();
+            configuracion = Configuracion.cargar();
         } catch (RuntimeException e) {
             error(e.getMessage());
             return;
