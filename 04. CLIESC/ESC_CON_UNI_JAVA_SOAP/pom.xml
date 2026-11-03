@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Same groupId as the SOAP server and the web client -->
+    <groupId>ec.edu.monster</groupId>
+    <artifactId>ESC_CON_UNI_JAVA_SOAP</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <!-- Desktop Swing application: an executable jar -->
+    <packaging>jar</packaging>
+    <name>ESC_CON_UNI_JAVA_SOAP</name>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Compile for Java 17, the same version as the server and the web client -->
+        <maven.compiler.release>17</maven.compiler.release>
+        <exec.mainClass>ec.edu.monster.App</exec.mainClass>
+        <metro.version>4.0.6</metro.version>
+    </properties>
+
+    <dependencies>
+        <!-- Metro (JAX-WS + SAAJ + JAXB runtime): a desktop client does not run
+             inside an application server, so the SOAP stack must be packaged -->
+        <dependency>
+            <groupId>org.glassfish.metro</groupId>
+            <artifactId>webservices-rt</artifactId>
+            <version>${metro.version}</version>
+        </dependency>
+
+        <!-- ===== Test-only dependencies ===== -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.11.4</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>ESC_CON_UNI_JAVA_SOAP</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+            </plugin>
+
+            <!-- Runs the JUnit 5 tests during mvn test / mvn package -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.2</version>
+            </plugin>
+
+            <!-- Reads the local WSDL copies and generates the SOAP client stubs
+                 (DTOs + service proxies) into target/generated-sources/wsimport
+                 before compiling. One execution per service, each in its own
+                 package: both WSDLs define ObjectFactory in the same namespace. -->
+            <plugin>
+                <groupId>com.sun.xml.ws</groupId>
+                <artifactId>jaxws-maven-plugin</artifactId>
+                <version>4.0.4</version>
+                <configuration>
+                    <wsdlDirectory>${project.basedir}/src/main/resources/wsdl</wsdlDirectory>
+                    <xnocompile>true</xnocompile>
+                    <keep>true</keep>
+                    <vmArgs>
+                        <vmArg>-Djavax.xml.accessExternalSchema=all</vmArg>
+                    </vmArgs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>login-ws</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlFiles>
+                                <wsdlFile>LoginWebService.wsdl</wsdlFile>
+                            </wsdlFiles>
+                            <packageName>ec.edu.monster.ws.login</packageName>
+                            <!-- Runtime reads the WSDL from the classpath, not from the server -->
+                            <wsdlLocation>/wsdl/LoginWebService.wsdl</wsdlLocation>
+                            <staleFile>${project.build.directory}/jaxws/stale/login.stale</staleFile>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>movimiento-ws</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlFiles>
+                                <wsdlFile>MovimientoWebService.wsdl</wsdlFile>
+                            </wsdlFiles>
+                            <packageName>ec.edu.monster.ws.movimiento</packageName>
+                            <wsdlLocation>/wsdl/MovimientoWebService.wsdl</wsdlLocation>
+                            <staleFile>${project.build.directory}/jaxws/stale/movimiento.stale</staleFile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Leaves a copy of config.properties next to the jar, so the server address
+                 can be changed by editing one file without recompiling or opening the jar. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+                <executions>
+                    <execution>
+                        <id>copiar-configuracion</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/src/main/resources</directory>
+                                    <includes>
+                                        <include>config.properties</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Packages the client as one runnable jar: main class + Metro on the
+                 classpath. ServicesResourceTransformer keeps the META-INF/services
+                 files that JAX-WS needs to find its implementation at runtime. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>ec.edu.monster.App</mainClass>
+                                </transformer>
+                            </transformers>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>module-info.class</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
