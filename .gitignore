@@ -31,7 +31,10 @@ odd/
 .cursor/
 .windsurf/
 .gemini/
-/04. CLIWEB/WEB_CON_UNI_JAVA_SOAP/target/
+/04. CLIWEB/web_eurekabank_soap_java/target/
 
 # PowerDesigner: copias de respaldo automáticas
 *.oob
+
+# Local test data for the EurekaBank database (personal users and passwords)
+/03. BDD/EurekaBank_MySQL_datos.sql

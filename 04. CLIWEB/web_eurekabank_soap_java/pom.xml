@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Project identity: same groupId as the SOAP server -->
+    <groupId>ec.edu.monster</groupId>
+    <artifactId>web_eurekabank_soap_java</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <!-- war = web application deployed on Payara -->
+    <packaging>war</packaging>
+    <name>web_eurekabank_soap_java</name>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Compile for Java 17, the same version as the server -->
+        <maven.compiler.release>17</maven.compiler.release>
+        <!-- Jakarta EE 10 runs on both Payara 6 and Payara 7 -->
+        <jakartaee>10.0.0</jakartaee>
+    </properties>
+
+    <dependencies>
+        <!-- Jakarta EE API (Servlet, JSP, ...).
+             provided: needed to compile, but Payara already ships it,
+             so it is NOT packaged inside the .war -->
+        <dependency>
+            <groupId>jakarta.platform</groupId>
+            <artifactId>jakarta.jakartaee-api</artifactId>
+            <version>${jakartaee}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Jakarta XML Web Services API (SOAP client classes such as Service).
+             It is not part of jakartaee-api 10; Payara ships it at runtime -->
+        <dependency>
+            <groupId>jakarta.xml.ws</groupId>
+            <artifactId>jakarta.xml.ws-api</artifactId>
+            <version>4.0.2</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- ===== Test-only dependencies (never packaged in the .war) ===== -->
+        <!-- JUnit 5: writes and runs the tests -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.11.4</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Mockito: fake HttpServletRequest/Response/Session for the controllers -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>5.20.0</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Metro runtime: Payara provides it when deployed; tests run outside
+             Payara, so they need it to call (and publish a fake) SOAP service -->
+        <dependency>
+            <groupId>com.sun.xml.ws</groupId>
+            <artifactId>jaxws-rt</artifactId>
+            <version>4.0.3</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <!-- Name of the .war, which is also the URL context root:
+             http://localhost:8080/web_eurekabank_soap_java/ -->
+        <finalName>web_eurekabank_soap_java</finalName>
+        <plugins>
+            <!-- Compiles the Java code using maven.compiler.release -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+            </plugin>
+            <!-- Packages the web application as a .war -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.4.0</version>
+            </plugin>
+            <!-- Runs the JUnit 5 tests during mvn test / mvn package -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.2</version>
+            </plugin>
+            <!-- Runs wsimport: reads the local WSDL copies and generates the
+                 SOAP client stubs (DTOs + service proxies) into
+                 target/generated-sources/wsimport before compiling -->
+            <plugin>
+                <groupId>com.sun.xml.ws</groupId>
+                <artifactId>jaxws-maven-plugin</artifactId>
+                <version>4.0.3</version>
+                <configuration>
+                    <!-- Folder holding the WSDL and XSD copies -->
+                    <wsdlDirectory>${project.basedir}/src/main/resources/wsdl</wsdlDirectory>
+                    <!-- Generate client code only, no server classes -->
+                    <xnocompile>true</xnocompile>
+                    <keep>true</keep>
+                </configuration>
+                <executions>
+                    <!-- One execution per service, each in its own package:
+                         both WSDLs define responseDTO and ObjectFactory in the
+                         same namespace, so one package would overwrite them -->
+                    <execution>
+                        <id>login-ws</id>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlFiles>
+                                <wsdlFile>LoginWebService.wsdl</wsdlFile>
+                            </wsdlFiles>
+                            <packageName>ec.edu.monster.ws.login</packageName>
+                            <!-- Runtime reads the WSDL from the classpath, not from the server -->
+                            <wsdlLocation>/wsdl/LoginWebService.wsdl</wsdlLocation>
+                            <staleFile>${project.build.directory}/jaxws/stale/login.stale</staleFile>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>movimiento-ws</id>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlFiles>
+                                <wsdlFile>MovimientoWebService.wsdl</wsdlFile>
+                            </wsdlFiles>
+                            <packageName>ec.edu.monster.ws.movimiento</packageName>
+                            <wsdlLocation>/wsdl/MovimientoWebService.wsdl</wsdlLocation>
+                            <staleFile>${project.build.directory}/jaxws/stale/movimiento.stale</staleFile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
