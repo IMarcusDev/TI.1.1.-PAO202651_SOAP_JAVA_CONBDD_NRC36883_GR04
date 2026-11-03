@@ -1,11 +1,10 @@
 /*==============================================================*/
 /* DBMS name:      Microsoft SQL Server 2012                    */
-/* Created on:     31/10/2026 2:45:57                           */
+/* Created on:     2/11/2026 20:34:08                           */
 /*==============================================================*/
 
--- create database EurekaBank;
 -- drop database EurekaBank;
-
+-- create database EurekaBank;
 
 if exists (select 1
    from sys.sysreferences r join sys.sysobjects o on (o.id = r.constid and o.type = 'F')
@@ -57,33 +56,6 @@ if exists (select 1
 go
 
 if exists (select 1
-            from  sysindexes
-           where  id    = object_id('MOVIMIENTOS')
-            and   name  = 'RELATIONSHIP_8_FK'
-            and   indid > 0
-            and   indid < 255)
-   drop index MOVIMIENTOS.RELATIONSHIP_8_FK
-go
-
-if exists (select 1
-            from  sysindexes
-           where  id    = object_id('MOVIMIENTOS')
-            and   name  = 'RELATIONSHIP_4_FK'
-            and   indid > 0
-            and   indid < 255)
-   drop index MOVIMIENTOS.RELATIONSHIP_4_FK
-go
-
-if exists (select 1
-            from  sysindexes
-           where  id    = object_id('MOVIMIENTOS')
-            and   name  = 'RELATIONSHIP_3_FK'
-            and   indid > 0
-            and   indid < 255)
-   drop index MOVIMIENTOS.RELATIONSHIP_3_FK
-go
-
-if exists (select 1
             from  sysobjects
            where  id = object_id('MOVIMIENTOS')
             and   type = 'U')
@@ -102,15 +74,6 @@ if exists (select 1
            where  id = object_id('PERFILES')
             and   type = 'U')
    drop table PERFILES
-go
-
-if exists (select 1
-            from  sysindexes
-           where  id    = object_id('USUARIOS')
-            and   name  = 'RELATIONSHIP_5_FK'
-            and   indid > 0
-            and   indid < 255)
-   drop index USUARIOS.RELATIONSHIP_5_FK
 go
 
 if exists (select 1
@@ -162,36 +125,13 @@ go
 /* Table: MOVIMIENTOS                                           */
 /*==============================================================*/
 create table MOVIMIENTOS (
-   ID_MOVIMIENTO        int              identity,
+   ID_MOVIMIENTO        int                  identity,
    ID_TIPO_MOVIMIENTO   int                  null,
    CUENTA_ORIGEN_MOVIMIENTO varchar(30)          null,
    CUENTA_DESTINO_MOVIMIENTO varchar(30)          null,
    FECHA_MOVIMIENTO     datetime             null,
+   VALOR_MOVIMIENTO     double precision     null,
    constraint PK_MOVIMIENTOS primary key nonclustered (ID_MOVIMIENTO)
-)
-go
-
-/*==============================================================*/
-/* Index: RELATIONSHIP_3_FK                                     */
-/*==============================================================*/
-create index RELATIONSHIP_3_FK on MOVIMIENTOS (
-CUENTA_ORIGEN_MOVIMIENTO ASC
-)
-go
-
-/*==============================================================*/
-/* Index: RELATIONSHIP_4_FK                                     */
-/*==============================================================*/
-create index RELATIONSHIP_4_FK on MOVIMIENTOS (
-CUENTA_DESTINO_MOVIMIENTO ASC
-)
-go
-
-/*==============================================================*/
-/* Index: RELATIONSHIP_8_FK                                     */
-/*==============================================================*/
-create index RELATIONSHIP_8_FK on MOVIMIENTOS (
-ID_TIPO_MOVIMIENTO ASC
 )
 go
 
@@ -199,7 +139,7 @@ go
 /* Table: MOVIMIENTO_TIPOS                                      */
 /*==============================================================*/
 create table MOVIMIENTO_TIPOS (
-   ID_TIPO_MOVIMIENTO   int              identity,
+   ID_TIPO_MOVIMIENTO   int                  identity,
    NOMBRE_TIPO_MOVIMIENTO varchar(20)          null,
    DESCRIPCION_TIPO_MOVIMIENTO text                 null,
    ACCION_TIPO_MOVIMIENTO varchar(8)           null,
@@ -236,18 +176,10 @@ create table USUARIOS (
 go
 
 /*==============================================================*/
-/* Index: RELATIONSHIP_5_FK                                     */
-/*==============================================================*/
-create index RELATIONSHIP_5_FK on USUARIOS (
-ID_TIPO_USUARIO ASC
-)
-go
-
-/*==============================================================*/
 /* Table: USUARIO_TIPOS                                         */
 /*==============================================================*/
 create table USUARIO_TIPOS (
-   ID_TIPO_USUARIO      int              identity,
+   ID_TIPO_USUARIO      int                  identity,
    NOMBRE_TIPO_USUARIO  varchar(1024)        null,
    DESCRIPCION_TIPO_USUARIO text                 null,
    ESTADO_TIPO_USUARIO  bit                  null,
