@@ -18,7 +18,7 @@ import java.util.Set;
  * A Cliente reaches /retiro and /transferencia: those controllers always use the
  * account stored in session at login, never one taken from the form.
  */
-@WebFilter(filterName = "AuthFilter", urlPatterns = {"/menu", "/retiro", "/transferencia", "/deposito"})
+@WebFilter(filterName = "AuthFilter", urlPatterns = {"/menu", "/retiro", "/transferencia", "/deposito", "/movimientos"})
 public class AuthFilter extends HttpFilter {
   // Must match the user type names returned by the server (USUARIO_TIPOS)
   public static final String ROL_EMPLEADO = "Empleado";
