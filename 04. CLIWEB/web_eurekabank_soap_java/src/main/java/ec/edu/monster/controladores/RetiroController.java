@@ -21,6 +21,9 @@ import java.util.Map;
  * POST /retiro paso=revisar    -> validates and shows the confirmation
  * POST /retiro paso=editar     -> back to the form keeping the values
  * POST /retiro paso=confirmar  -> re-validates, calls the SOAP service and redirects (PRG)
+ * Empleado: any account; the account key is asked on the confirmation step.
+ * Cliente: always the account stored in session at login, no key (sent as "").
+ * The key is only read on confirm: it is never put in the request, the view or the session.
  */
 @WebServlet(name = "RetiroController", urlPatterns = {"/retiro"})
 public class RetiroController extends HttpServlet {
@@ -29,6 +32,7 @@ public class RetiroController extends HttpServlet {
   private static final String RUTA_LOGIN = "/login";
   // Session flash key: the receipt survives exactly one redirect
   private static final String FLASH = "comprobanteRetiro";
+  private static final String CLAVE_VACIA = "Ingrese la clave de la cuenta";
   private static final DateTimeFormatter FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
   private final transient MovimientoService movimientoService;
@@ -60,6 +64,10 @@ public class RetiroController extends HttpServlet {
       render(request, response, "comprobante");
       return;
     }
+    String cuentaCliente = cuentaCliente(session);
+    if (cuentaCliente != null) {
+      request.setAttribute("cuenta", cuentaCliente);
+    }
     render(request, response, "formulario");
   }
 
@@ -74,8 +82,12 @@ public class RetiroController extends HttpServlet {
     }
     response.setHeader("Cache-Control", "no-store");
 
+    // A Cliente can only use their own account: the form value is ignored
+    String cuentaCliente = cuentaCliente(session);
+    boolean esCliente = cuentaCliente != null;
+
     String paso = request.getParameter("paso");
-    String cuenta = request.getParameter("cuenta");
+    String cuenta = esCliente ? cuentaCliente : request.getParameter("cuenta");
     String importe = request.getParameter("importe");
 
     if ("editar".equals(paso)) {
@@ -92,16 +104,23 @@ public class RetiroController extends HttpServlet {
     }
 
     if (!"confirmar".equals(paso)) {
-      request.setAttribute("cuenta", form.getCuenta());
-      request.setAttribute("importe", form.getImporte().toPlainString());
-      request.setAttribute("importeFormateado", form.getImporteFormateado());
-      render(request, response, "confirmacion");
+      showConfirmation(request, response, form);
       return;
     }
 
-    // cuenta_destino is null: the server only uses the source account for a withdrawal
-    MovimientoResponseDTO resultado = movimientoService.retiro(
-        token, form.getCuenta(), null, form.getImporte().doubleValue());
+    String clave = "";
+    if (!esCliente) {
+      // Sent as typed (no trim): the server compares it with the stored key
+      clave = request.getParameter("clave");
+      if (clave == null || clave.isBlank()) {
+        request.setAttribute("errores", Map.of("clave", CLAVE_VACIA));
+        showConfirmation(request, response, form);
+        return;
+      }
+    }
+
+    MovimientoResponseDTO resultado = movimientoService.registrarRetiro(
+        token, form.getCuenta(), form.getImporte(), clave);
 
     if (resultado == null || resultado.getEstado() != EstadosEnum.OK) {
       request.setAttribute("error", resultado == null
@@ -110,18 +129,30 @@ public class RetiroController extends HttpServlet {
       return;
     }
 
-    // Only Strings in the session (the generated DTO is not Serializable)
+    // Only Strings in the session (the generated DTO is not Serializable), never the key
     Map<String, String> comprobante = new LinkedHashMap<>();
     comprobante.put("operacion", "Retiro");
     comprobante.put("cuenta", form.getCuenta());
     comprobante.put("importe", form.getImporteFormateado());
-    comprobante.put("idMovimiento", String.valueOf(resultado.getIdMovimiento()));
+    comprobante.put("idMovimiento", String.valueOf(resultado.getNumeroMovimiento()));
+    if (resultado.getNuevoSaldo() != null) {
+      comprobante.put("nuevoSaldo", MovimientoForm.formatearImporte(resultado.getNuevoSaldo()));
+    }
     comprobante.put("fecha", LocalDateTime.now().format(FECHA));
     comprobante.put("mensaje", resultado.getMensaje());
     session.setAttribute(FLASH, comprobante);
 
     // Post/Redirect/Get: a browser refresh never repeats the withdrawal
     response.sendRedirect(request.getContextPath() + RUTA);
+  }
+
+  // Confirmation state with the validated values (the key input is always rendered empty)
+  private void showConfirmation(HttpServletRequest request, HttpServletResponse response,
+      MovimientoForm form) throws ServletException, IOException {
+    request.setAttribute("cuenta", form.getCuenta());
+    request.setAttribute("importe", form.getImporte().toPlainString());
+    request.setAttribute("importeFormateado", form.getImporteFormateado());
+    render(request, response, "confirmacion");
   }
 
   // Form state keeping what the user typed
@@ -145,5 +176,11 @@ public class RetiroController extends HttpServlet {
     }
     Object token = session.getAttribute("token");
     return token instanceof String value && !value.isBlank() ? value : null;
+  }
+
+  // Account stored at login for a Cliente, or null for an employee
+  private static String cuentaCliente(HttpSession session) {
+    Object cuenta = session.getAttribute("cuenta");
+    return cuenta instanceof String value && !value.isBlank() ? value : null;
   }
 }

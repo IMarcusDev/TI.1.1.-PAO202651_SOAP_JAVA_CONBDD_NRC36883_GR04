@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 /**
  * Validation of the withdrawal / deposit / transfer forms (plain Java, no servlet API).
- * Errors are kept per field name (cuenta, empleado, origen, destino, importe) so the
+ * Errors are kept per field name (cuenta, origen, destino, importe) so the
  * view can show each message under its input.
  */
 public final class MovimientoForm {
@@ -28,7 +28,6 @@ public final class MovimientoForm {
 
   private final Map<String, String> errores = new LinkedHashMap<>();
   private String cuenta;
-  private String empleado;
   private String origen;
   private String destino;
   private BigDecimal importe;
@@ -44,10 +43,9 @@ public final class MovimientoForm {
     return form;
   }
 
-  /** Deposit: employee code (sent as the source id), target account and the amount. */
-  public static MovimientoForm deposito(String empleado, String cuenta, String importe) {
+  /** Deposit: target account and the amount (the server takes the employee from the token). */
+  public static MovimientoForm deposito(String cuenta, String importe) {
     MovimientoForm form = new MovimientoForm();
-    form.empleado = form.validarCuenta("empleado", empleado, "Ingrese el código de empleado");
     form.cuenta = form.validarCuenta("cuenta", cuenta, "Ingrese la cuenta de destino");
     form.importe = form.validarImporte(importe);
     return form;
@@ -81,10 +79,6 @@ public final class MovimientoForm {
 
   public String getCuenta() {
     return cuenta;
-  }
-
-  public String getEmpleado() {
-    return empleado;
   }
 
   public String getOrigen() {

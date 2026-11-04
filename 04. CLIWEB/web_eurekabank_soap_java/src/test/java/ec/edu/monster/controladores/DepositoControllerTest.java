@@ -1,9 +1,9 @@
 package ec.edu.monster.controladores;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -23,6 +23,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.math.BigDecimal;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,6 +34,8 @@ import org.mockito.ArgumentCaptor;
 /**
  * Tests the deposit controller through doGet/doPost with Mockito mocks;
  * the SOAP model (MovimientoService) is injected as a mock.
+ * Employee-only screen (AuthFilter); the ERS server takes the employee from the token,
+ * so the form only has the target account and the amount, and no account key.
  */
 class DepositoControllerTest {
   private static final String VISTA = "/WEB-INF/ec/edu/monster/vista/deposito.jsp";
@@ -53,18 +56,19 @@ class DepositoControllerTest {
     when(session.getAttribute("token")).thenReturn("abc123");
   }
 
-  private void params(String paso, String empleado, String cuenta, String importe) {
+  private void params(String paso, String cuenta, String importe) {
     when(request.getParameter("paso")).thenReturn(paso);
-    when(request.getParameter("empleado")).thenReturn(empleado);
     when(request.getParameter("cuenta")).thenReturn(cuenta);
     when(request.getParameter("importe")).thenReturn(importe);
   }
 
-  private static MovimientoResponseDTO respuesta(EstadosEnum estado, String mensaje, int id) {
+  private static MovimientoResponseDTO respuesta(EstadosEnum estado, String mensaje, int numero,
+      String nuevoSaldo) {
     MovimientoResponseDTO dto = new MovimientoResponseDTO();
     dto.setEstado(estado);
     dto.setMensaje(mensaje);
-    dto.setIdMovimiento(id);
+    dto.setNumeroMovimiento(numero);
+    dto.setNuevoSaldo(nuevoSaldo == null ? null : new BigDecimal(nuevoSaldo));
     return dto;
   }
 
@@ -110,40 +114,22 @@ class DepositoControllerTest {
 
   @Test
   void revisarValidShowsConfirmationWithoutCallingService() throws Exception {
-    params("revisar", " 0001 ", " 0004 ", "100");
+    params("revisar", " 0004 ", "100");
 
     controller.doPost(request, response);
 
     verify(request).setAttribute("vista", "confirmacion");
-    verify(request).setAttribute("empleado", "0001");
     verify(request).setAttribute("cuenta", "0004");
     verify(request).setAttribute("importe", "100");
     verify(request).setAttribute("importeFormateado", "$ 100.00");
-    verify(dispatcher).forward(request, response);
-    verifyNoInteractions(service);
-  }
-
-  @Test
-  void revisarWithBlankEmployeeShowsFieldErrorAndKeepsValues() throws Exception {
-    params("revisar", "  ", "0004", "100");
-
-    controller.doPost(request, response);
-
-    @SuppressWarnings("unchecked")
-    ArgumentCaptor<Map<String, String>> errores = ArgumentCaptor.forClass(Map.class);
-    verify(request).setAttribute(eq("errores"), errores.capture());
-    assertEquals(Map.of("empleado", "Ingrese el código de empleado"), errores.getValue());
-    verify(request).setAttribute("vista", "formulario");
-    verify(request).setAttribute("empleado", "  ");
-    verify(request).setAttribute("cuenta", "0004");
-    verify(request).setAttribute("importe", "100");
+    verify(request, never()).setAttribute(eq("empleado"), any());
     verify(dispatcher).forward(request, response);
     verifyNoInteractions(service);
   }
 
   @Test
   void revisarWithBlankAccountShowsFieldErrorAndKeepsValues() throws Exception {
-    params("revisar", "0001", null, "100");
+    params("revisar", null, "100");
 
     controller.doPost(request, response);
 
@@ -152,7 +138,7 @@ class DepositoControllerTest {
     verify(request).setAttribute(eq("errores"), errores.capture());
     assertEquals(Map.of("cuenta", "Ingrese la cuenta de destino"), errores.getValue());
     verify(request).setAttribute("vista", "formulario");
-    verify(request).setAttribute("empleado", "0001");
+    verify(request).setAttribute("importe", "100");
     verify(dispatcher).forward(request, response);
     verifyNoInteractions(service);
   }
@@ -160,7 +146,7 @@ class DepositoControllerTest {
   @ParameterizedTest
   @ValueSource(strings = {"NaN", "abc", "0", "1.234", "-5"})
   void revisarWithInvalidAmountShowsErrorsAndKeepsValues(String importe) throws Exception {
-    params("revisar", "0001", "0004", importe);
+    params("revisar", "0004", importe);
 
     controller.doPost(request, response);
 
@@ -171,7 +157,6 @@ class DepositoControllerTest {
         "El importe debe ser mayor que cero y tener como máximo dos decimales"),
         errores.getValue());
     verify(request).setAttribute("vista", "formulario");
-    verify(request).setAttribute("empleado", "0001");
     verify(request).setAttribute("cuenta", "0004");
     verify(request).setAttribute("importe", importe);
     verify(dispatcher).forward(request, response);
@@ -180,12 +165,11 @@ class DepositoControllerTest {
 
   @Test
   void editarReturnsToFormKeepingValues() throws Exception {
-    params("editar", "0001", "0004", "100");
+    params("editar", "0004", "100");
 
     controller.doPost(request, response);
 
     verify(request).setAttribute("vista", "formulario");
-    verify(request).setAttribute("empleado", "0001");
     verify(request).setAttribute("cuenta", "0004");
     verify(request).setAttribute("importe", "100");
     verify(request, never()).setAttribute(eq("errores"), any());
@@ -195,7 +179,7 @@ class DepositoControllerTest {
 
   @Test
   void confirmarRevalidatesHiddenFields() throws Exception {
-    params("confirmar", "0001", "0004", "-5");
+    params("confirmar", "0004", "-5");
 
     controller.doPost(request, response);
 
@@ -206,43 +190,41 @@ class DepositoControllerTest {
 
   @Test
   void confirmarOkCallsServiceOnceStoresReceiptAndRedirects() throws Exception {
-    params("confirmar", "0001", "0004", "100");
-    when(service.deposito("abc123", "0001", "0004", 100.0))
-        .thenReturn(respuesta(EstadosEnum.OK, "Depósito registrado", 7));
+    params("confirmar", "0004", "100");
+    when(service.registrarDeposito("abc123", "0004", new BigDecimal("100")))
+        .thenReturn(respuesta(EstadosEnum.OK, "Depósito registrado", 7, "1350.00"));
 
     controller.doPost(request, response);
 
-    verify(service, times(1)).deposito("abc123", "0001", "0004", 100.0);
-    verify(service, never()).retiro(anyString(), anyString(), any(), anyDouble());
-    verify(service, never()).transferencia(anyString(), anyString(), anyString(), anyDouble());
+    verify(service, times(1)).registrarDeposito("abc123", "0004", new BigDecimal("100"));
     @SuppressWarnings("unchecked")
     ArgumentCaptor<Map<String, String>> comprobante = ArgumentCaptor.forClass(Map.class);
     verify(session).setAttribute(eq("comprobanteDeposito"), comprobante.capture());
     Map<String, String> c = comprobante.getValue();
     assertEquals("Depósito", c.get("operacion"));
-    assertEquals("0001", c.get("empleado"));
     assertEquals("0004", c.get("cuenta"));
     assertEquals("$ 100.00", c.get("importe"));
     assertEquals("7", c.get("idMovimiento"));
+    assertEquals("$ 1,350.00", c.get("nuevoSaldo"));
     assertEquals("Depósito registrado", c.get("mensaje"));
     assertNotNull(c.get("fecha"));
+    assertFalse(c.containsKey("empleado"));
     verify(response).sendRedirect(CTX + "/deposito");
     verify(dispatcher, never()).forward(any(ServletRequest.class), any(ServletResponse.class));
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"Usuario no es empleado", "Cuenta inexistente",
+  @ValueSource(strings = {"La cuenta no existe", "Operación no permitida para su perfil",
       "No se pudo conectar con el servidor: http://localhost:8080/ws"})
   void confirmarErrorShowsServerMessageAndKeepsValues(String mensaje) throws Exception {
-    params("confirmar", "0001", "0004", "100");
-    when(service.deposito("abc123", "0001", "0004", 100.0))
-        .thenReturn(respuesta(EstadosEnum.ERROR, mensaje, 0));
+    params("confirmar", "0004", "100");
+    when(service.registrarDeposito("abc123", "0004", new BigDecimal("100")))
+        .thenReturn(respuesta(EstadosEnum.ERROR, mensaje, 0, null));
 
     controller.doPost(request, response);
 
     verify(request).setAttribute("error", mensaje);
     verify(request).setAttribute("vista", "formulario");
-    verify(request).setAttribute("empleado", "0001");
     verify(request).setAttribute("cuenta", "0004");
     verify(request).setAttribute("importe", "100");
     verify(session, never()).setAttribute(eq("comprobanteDeposito"), any());
