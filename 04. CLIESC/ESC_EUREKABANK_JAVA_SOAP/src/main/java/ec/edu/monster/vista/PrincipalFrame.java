@@ -25,12 +25,14 @@ import javax.swing.WindowConstants;
 public class PrincipalFrame extends JFrame {
 
     private static final String INICIO = "inicio";
+    private static final String MOVIMIENTOS = "movimientos";
     private static final String DEPOSITO = "deposito";
     private static final String RETIRO = "retiro";
     private static final String TRANSFERENCIA = "transferencia";
 
     private final CardLayout pantallas = new CardLayout();
     private final JPanel contenido = new JPanel(pantallas);
+    private final MovimientosPanel movimientosPanel;
     private final DepositoPanel depositoPanel;
     private final RetiroPanel retiroPanel;
     private final TransferenciaPanel transferenciaPanel;
@@ -45,6 +47,7 @@ public class PrincipalFrame extends JFrame {
         boolean empleado = Sesion.ROL_EMPLEADO.equals(tipoUsuario);
         boolean cliente = Sesion.ROL_CLIENTE.equals(tipoUsuario);
 
+        movimientosPanel = new MovimientosPanel(cliente, cuenta, () -> seleccionar(INICIO));
         depositoPanel = new DepositoPanel();
         retiroPanel = new RetiroPanel(cliente, cuenta);
         transferenciaPanel = new TransferenciaPanel(cliente, cuenta);
@@ -54,10 +57,12 @@ public class PrincipalFrame extends JFrame {
         setLocationRelativeTo(null);
 
         menuPanel = new MenuPanel(nombre, empleado,
-                () -> seleccionar(DEPOSITO), () -> seleccionar(RETIRO), () -> seleccionar(TRANSFERENCIA));
+                () -> seleccionar(DEPOSITO), () -> seleccionar(RETIRO), () -> seleccionar(TRANSFERENCIA),
+                () -> seleccionar(MOVIMIENTOS));
 
         contenido.setOpaque(false);
         contenido.add(menuPanel, INICIO);
+        contenido.add(movimientosPanel, MOVIMIENTOS);
         contenido.add(depositoPanel, DEPOSITO);
         contenido.add(retiroPanel, RETIRO);
         contenido.add(transferenciaPanel, TRANSFERENCIA);
@@ -77,6 +82,10 @@ public class PrincipalFrame extends JFrame {
         raiz.add(contenido, BorderLayout.CENTER);
         raiz.add(indicadorEstado, BorderLayout.SOUTH);
         setContentPane(raiz);
+    }
+
+    public MovimientosPanel getMovimientosPanel() {
+        return movimientosPanel;
     }
 
     public DepositoPanel getDepositoPanel() {
@@ -102,6 +111,7 @@ public class PrincipalFrame extends JFrame {
     private JMenuBar construirMenu(boolean empleado, Runnable alCerrarSesion) {
         JMenu archivo = Estilos.menu("Archivo");
         archivo.add(Estilos.opcion("Inicio", () -> seleccionar(INICIO)));
+        archivo.add(Estilos.opcion("Consultar movimientos", () -> seleccionar(MOVIMIENTOS)));
         if (empleado) {
             archivo.add(Estilos.opcion("Depósito", () -> seleccionar(DEPOSITO)));
         }
@@ -189,7 +199,7 @@ public class PrincipalFrame extends JFrame {
         panel.add(titulo);
 
         panel.add(navegacion("Inicio", () -> seleccionar(INICIO)));
-        panel.add(proximamente("Consultar movimientos"));
+        panel.add(navegacion("Consultar movimientos", () -> seleccionar(MOVIMIENTOS)));
         if (empleado) {
             panel.add(navegacion("Depósito", () -> seleccionar(DEPOSITO)));
         } else {

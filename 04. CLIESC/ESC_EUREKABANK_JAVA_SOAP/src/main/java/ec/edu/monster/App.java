@@ -3,6 +3,7 @@ package ec.edu.monster;
 import ec.edu.monster.controlador.EstadoControlador;
 import ec.edu.monster.controlador.LoginControlador;
 import ec.edu.monster.controlador.MovimientoControlador;
+import ec.edu.monster.controlador.MovimientosControlador;
 import ec.edu.monster.modelo.Comprobantes;
 import ec.edu.monster.modelo.Configuracion;
 import ec.edu.monster.modelo.EstadoServidor;
@@ -80,6 +81,8 @@ public final class App {
     }
 
     private void conectar(PrincipalFrame principal, MovimientoServicio servicio) {
+        new MovimientosControlador(principal.getMovimientosPanel(), sesion, servicio);
+
         new MovimientoControlador(principal.getDepositoPanel(), sesion,
                 form -> "¿Depositar " + form.getImporteFormateado() + " en la cuenta " + form.getCuenta() + "?",
                 (token, form) -> Comprobantes.deposito(form,
