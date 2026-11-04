@@ -44,9 +44,9 @@ class LoginServicioSoapTest {
 
         @Test
         void validCredentialsReturnTheSessionData() throws ServicioException {
-            DatosSesion datos = servicio.iniciarSesion("admin", "1234");
+            DatosSesion datos = servicio.iniciarSesionEmpleado("cajero", "cajero123");
 
-            assertEquals("Administrador", datos.nombre());
+            assertEquals("Carla Andrade", datos.nombre());
             assertEquals("Empleado", datos.tipoUsuario());
             assertEquals(FakeLoginWebService.TOKEN, datos.token());
         }
@@ -54,9 +54,9 @@ class LoginServicioSoapTest {
         @Test
         void wrongCredentialsThrowTheServerMessage() {
             ServicioException error = assertThrows(ServicioException.class,
-                    () -> servicio.iniciarSesion("admin", "mala"));
+                    () -> servicio.iniciarSesionEmpleado("cajero", "mala"));
 
-            assertEquals("Contraseña incorrecta", error.getMessage());
+            assertEquals("Credenciales incorrectas", error.getMessage());
         }
     }
 
@@ -67,7 +67,7 @@ class LoginServicioSoapTest {
         LoginServicioSoap servicio = new LoginServicioSoap(configuracion);
 
         ServicioException error = assertThrows(ServicioException.class,
-                () -> servicio.iniciarSesion("admin", "1234"));
+                () -> servicio.iniciarSesionEmpleado("cajero", "cajero123"));
 
         assertEquals("No se pudo conectar con el servidor: " + configuracion.getEndpoint("LoginWebService"),
                 error.getMessage());

@@ -9,9 +9,10 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 /**
- * Home screen: greeting and one card per operation. The three movements are only
- * available to an "Empleado", exactly like the AuthFilter of the web client; the
- * other roles see them disabled with "Próximamente".
+ * Home screen: greeting and one card per operation. Deposit is employee-only;
+ * withdrawal and transfer are available to both roles, with the texts the web
+ * client uses for a Cliente. The movement history card stays disabled until its
+ * screen exists.
  */
 public class MenuPanel extends JPanel {
 
@@ -29,10 +30,14 @@ public class MenuPanel extends JPanel {
 
         JPanel tarjetas = new JPanel(new GridLayout(2, 2, 16, 16));
         tarjetas.setOpaque(false);
-        tarjetas.add(tarjeta("Consultar movimientos", "Disponible próximamente", false, () -> { }));
+        tarjetas.add(tarjeta("Consultar movimientos", "Consulte los movimientos de una cuenta", false, () -> { }));
         tarjetas.add(tarjeta("Depósito", "Registre un depósito en la cuenta de un cliente", empleado, alDeposito));
-        tarjetas.add(tarjeta("Retiro", "Registre un retiro de la cuenta de un cliente", empleado, alRetiro));
-        tarjetas.add(tarjeta("Transferencia", "Mueva dinero de una cuenta a otra", empleado, alTransferencia));
+        tarjetas.add(tarjeta("Retiro",
+                empleado ? "Registre un retiro de la cuenta de un cliente" : "Registrar una salida de su cuenta",
+                true, alRetiro));
+        tarjetas.add(tarjeta("Transferencia",
+                empleado ? "Mueva dinero de una cuenta a otra" : "Mover fondos desde su cuenta",
+                true, alTransferencia));
         add(tarjetas, BorderLayout.CENTER);
     }
 

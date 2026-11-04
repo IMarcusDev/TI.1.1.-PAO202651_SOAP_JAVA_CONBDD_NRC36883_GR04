@@ -28,11 +28,6 @@ public class LoginServicioSoap implements LoginServicio {
     }
 
     @Override
-    public DatosSesion iniciarSesion(String usuario, String clave) throws ServicioException {
-        return autenticar(puerto -> puerto.login(usuario, clave));
-    }
-
-    @Override
     public DatosSesion iniciarSesionEmpleado(String usuario, String clave) throws ServicioException {
         return autenticar(puerto -> puerto.loginEmpleado(usuario, clave));
     }
@@ -42,7 +37,7 @@ public class LoginServicioSoap implements LoginServicio {
         return autenticar(puerto -> puerto.loginCliente(cuenta, clave));
     }
 
-    // Shared logic of the three logins: connect, call, validate the answer
+    // Shared logic of both logins: connect, call, validate the answer
     private DatosSesion autenticar(Function<LoginWebService, LoginResponseDTO> operacion)
             throws ServicioException {
         LoginResponseDTO respuesta;

@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 /**
  * Client-side access to the SOAP MovimientoWebService. Every operation needs the
- * token returned by {@link LoginServicio#iniciarSesion(String, String)}.
+ * token returned by {@link LoginServicio#iniciarSesionEmpleado(String, String)}.
  */
 public interface MovimientoServicio {
 

@@ -96,9 +96,9 @@ public class PrincipalFrame extends JFrame {
         archivo.add(Estilos.opcion("Inicio", () -> seleccionar(INICIO)));
         if (empleado) {
             archivo.add(Estilos.opcion("Depósito", () -> seleccionar(DEPOSITO)));
-            archivo.add(Estilos.opcion("Retiro", () -> seleccionar(RETIRO)));
-            archivo.add(Estilos.opcion("Transferencia", () -> seleccionar(TRANSFERENCIA)));
         }
+        archivo.add(Estilos.opcion("Retiro", () -> seleccionar(RETIRO)));
+        archivo.add(Estilos.opcion("Transferencia", () -> seleccionar(TRANSFERENCIA)));
         archivo.addSeparator();
         archivo.add(Estilos.opcion("Cerrar sesión", () -> {
             try {
@@ -184,13 +184,11 @@ public class PrincipalFrame extends JFrame {
         panel.add(proximamente("Consultar movimientos"));
         if (empleado) {
             panel.add(navegacion("Depósito", () -> seleccionar(DEPOSITO)));
-            panel.add(navegacion("Retiro", () -> seleccionar(RETIRO)));
-            panel.add(navegacion("Transferencia", () -> seleccionar(TRANSFERENCIA)));
         } else {
             panel.add(proximamente("Depósito"));
-            panel.add(proximamente("Retiro"));
-            panel.add(proximamente("Transferencia"));
         }
+        panel.add(navegacion("Retiro", () -> seleccionar(RETIRO)));
+        panel.add(navegacion("Transferencia", () -> seleccionar(TRANSFERENCIA)));
         panel.add(Box.createVerticalGlue());
         return panel;
     }

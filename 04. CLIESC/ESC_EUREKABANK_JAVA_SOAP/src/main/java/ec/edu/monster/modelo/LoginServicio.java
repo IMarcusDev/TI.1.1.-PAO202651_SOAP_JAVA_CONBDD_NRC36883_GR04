@@ -7,13 +7,6 @@ package ec.edu.monster.modelo;
 public interface LoginServicio {
 
     /**
-     * Logs in on the server.
-     *
-     * @throws ServicioException when the server rejects the credentials or cannot be reached
-     */
-    DatosSesion iniciarSesion(String usuario, String clave) throws ServicioException;
-
-    /**
      * Employee (bank teller) login with username and key.
      *
      * @throws ServicioException when the server rejects the credentials or cannot be reached

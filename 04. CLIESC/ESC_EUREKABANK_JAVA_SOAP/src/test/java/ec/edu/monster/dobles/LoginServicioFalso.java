@@ -30,11 +30,6 @@ public class LoginServicioFalso implements LoginServicio {
     }
 
     @Override
-    public DatosSesion iniciarSesion(String usuario, String clave) throws ServicioException {
-        return registrar("login", usuario, clave);
-    }
-
-    @Override
     public DatosSesion iniciarSesionEmpleado(String usuario, String clave) throws ServicioException {
         return registrar(Sesion.ROL_EMPLEADO, usuario, clave);
     }
@@ -55,7 +50,7 @@ public class LoginServicioFalso implements LoginServicio {
         return respuesta;
     }
 
-    /** "login" (legacy), "Empleado" or "Cliente": which login was called last. */
+    /** "Empleado" or "Cliente": which login was called last. */
     public String getRolRecibido() {
         return rolRecibido;
     }
