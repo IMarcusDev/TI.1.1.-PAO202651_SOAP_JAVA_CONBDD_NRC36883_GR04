@@ -10,7 +10,7 @@ import jakarta.jws.WebService;
  * as the real server. Accepted credentials:
  *   login         -> admin / 1234 (legacy operation)
  *   loginEmpleado -> cajero / cajero123
- *   loginCliente  -> account 00100001 / 123456
+ *   loginCliente  -> account 00100001 / 123456; account 00100003 is not active
  */
 @WebService(
     endpointInterface = "ec.edu.monster.ws.login.LoginWebService",
@@ -42,6 +42,9 @@ public class FakeLoginWebService implements LoginWebService {
   public LoginResponseDTO loginCliente(String cuenta, String clave) {
     if ("00100001".equals(cuenta) && "123456".equals(clave)) {
       return ok(TOKEN_CLIENTE, "Ana Torres", "Cliente", "CLIENTE", "Ingreso de sesión exitoso");
+    }
+    if ("00100003".equals(cuenta)) {
+      return error("La cuenta no se encuentra activa");
     }
     return error("Credenciales incorrectas");
   }

@@ -44,6 +44,34 @@
   gap: 20px;
 }
 
+/* ---------- Role selector (Empleado / Cliente) ---------- */
+.login-role {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+/* A legend is not a flex item: its spacing is set here */
+.login-role legend {
+  margin-bottom: 6px;
+  padding: 0;
+}
+
+.login-role__options {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 4px 0;
+}
+
+.login-role__option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
 @media (max-width: 480px) {
   .login-card {
     padding: 24px;

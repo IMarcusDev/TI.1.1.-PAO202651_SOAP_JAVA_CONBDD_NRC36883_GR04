@@ -22,16 +22,11 @@ public class LoginService {
   private static final LoginWebService_Service SERVICE = new LoginWebService_Service();
 
   /**
-   * Calls login on the server.
+   * Employee (bank teller) login with username and key.
    * Wrong credentials come back from the server as estado = ERROR;
    * a connection problem is turned into the same shape, so callers
    * only need to check getEstado().
    */
-  public LoginResponseDTO login(String username, String password) {
-    return call(port -> port.login(username, password));
-  }
-
-  /** Employee (bank teller) login with username and key. */
   public LoginResponseDTO loginEmpleado(String usuario, String clave) {
     return call(port -> port.loginEmpleado(usuario, clave));
   }

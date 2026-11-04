@@ -32,26 +32,6 @@ class LoginServiceTest {
     }
 
     @Test
-    void validCredentialsReturnTokenAndUserData() {
-      LoginResponseDTO r = service.login("admin", "1234");
-
-      assertEquals(EstadosEnum.OK, r.getEstado());
-      assertEquals("Ingreso de Sesión Exitoso!", r.getMensaje());
-      assertEquals(FakeLoginWebService.TOKEN, r.getToken());
-      assertEquals("Administrador", r.getNombre());
-      assertEquals("ADMIN", r.getTipoUsuario());
-    }
-
-    @Test
-    void wrongCredentialsReturnServerError() {
-      LoginResponseDTO r = service.login("admin", "mala");
-
-      assertEquals(EstadosEnum.ERROR, r.getEstado());
-      assertEquals("Contraseña incorrecta", r.getMensaje());
-      assertEquals("", r.getToken());
-    }
-
-    @Test
     void loginEmpleadoReturnsTokenAndEmployeeData() {
       LoginResponseDTO r = service.loginEmpleado("cajero", "cajero123");
 
@@ -92,16 +72,6 @@ class LoginServiceTest {
       assertEquals("Credenciales incorrectas", r.getMensaje());
       assertEquals("", r.getToken());
     }
-  }
-
-  /** Nothing is listening at the configured address. */
-  @Test
-  void serverDownReturnsConnectionError() {
-    LoginResponseDTO r = service.login("admin", "1234");
-
-    assertEquals(EstadosEnum.ERROR, r.getEstado());
-    assertEquals("No se pudo conectar con el servidor: "
-        + WsConfig.getEndpoint("LoginWebService"), r.getMensaje());
   }
 
   /** Nothing is listening: both role logins share the same error handling. */
