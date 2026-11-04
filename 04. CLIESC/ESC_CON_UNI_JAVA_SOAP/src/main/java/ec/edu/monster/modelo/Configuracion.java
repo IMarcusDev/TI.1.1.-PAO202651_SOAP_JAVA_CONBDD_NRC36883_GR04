@@ -91,7 +91,7 @@ public final class Configuracion {
         return new Configuracion(props, archivo.toAbsolutePath().toString());
     }
 
-    /** e.g. http://localhost:8080/WS_CON_UNI_JAVA_SOAP-1.0-SNAPSHOT */
+    /** e.g. http://localhost:8080/WS_EUREKABANK_JAVA_SOAP */
     public String getUrlBase() {
         return "http://" + valor("ws.host") + ":" + valor("ws.port") + "/" + valor("ws.context");
     }

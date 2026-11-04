@@ -15,7 +15,7 @@ import org.junit.Test;
 
 public class LoginSoapRepositorioTest {
 
-    private static final String URL_BASE = "http://servidor:8080/WS_CON_UNI_JAVA_SOAP/";
+    private static final String URL_BASE = "http://servidor:8080/WS_EUREKABANK_JAVA_SOAP/";
 
     private static LoginSoapRepositorio repositorio(TransporteFalso transporte) {
         return new LoginSoapRepositorio(URL_BASE, transporte, () -> false);

@@ -19,7 +19,7 @@ public class WsConfig {
     // Utility class: only static methods, no instances
   }
 
-  /** e.g. http://localhost:8080/WS_CON_UNI_JAVA_SOAP-1.0-SNAPSHOT */
+  /** e.g. http://localhost:8080/WS_EUREKABANK_JAVA_SOAP */
   public static String getBaseUrl() {
     return "http://" + get("ws.host") + ":" + get("ws.port") + "/" + get("ws.context");
   }

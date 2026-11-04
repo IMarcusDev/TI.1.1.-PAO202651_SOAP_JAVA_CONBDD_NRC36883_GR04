@@ -68,7 +68,7 @@
 </binding>
 <service name="MovimientoWebService">
 <port name="MovimientoWebServicePort" binding="tns:MovimientoWebServicePortBinding">
-<soap:address location="http://localhost:8080/WS_CON_UNI_JAVA_SOAP-1.0-SNAPSHOT/MovimientoWebService"/>
+<soap:address location="http://localhost:8080/WS_EUREKABANK_JAVA_SOAP/MovimientoWebService"/>
 </port>
 </service>
 </definitions>

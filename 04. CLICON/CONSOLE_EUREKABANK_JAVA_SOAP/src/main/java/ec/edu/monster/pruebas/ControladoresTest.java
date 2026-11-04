@@ -24,7 +24,7 @@ import org.xml.sax.InputSource;
 
 //revisado y aprovado por Marcos Escobar
 class ControladoresTest {
-  private static final String BASE = "http://servidor:8080/WS_CON_UNI_JAVA_SOAP";
+  private static final String BASE = "http://servidor:8080/WS_EUREKABANK_JAVA_SOAP";
 
   private static String sobre(String respuesta) {
     return "<S:Envelope xmlns:S=\"http://schemas.xmlsoap.org/soap/envelope/\"><S:Body>" + respuesta + "</S:Body></S:Envelope>";

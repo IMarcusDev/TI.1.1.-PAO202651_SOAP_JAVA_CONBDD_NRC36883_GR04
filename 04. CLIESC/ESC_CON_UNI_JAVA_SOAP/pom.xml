@@ -5,11 +5,11 @@
 
     <!-- Same groupId as the SOAP server and the web client -->
     <groupId>ec.edu.monster</groupId>
-    <artifactId>ESC_CON_UNI_JAVA_SOAP</artifactId>
+    <artifactId>ESC_EUREKABANK_JAVA_SOAP</artifactId>
     <version>1.0-SNAPSHOT</version>
     <!-- Desktop Swing application: an executable jar -->
     <packaging>jar</packaging>
-    <name>ESC_CON_UNI_JAVA_SOAP</name>
+    <name>ESC_EUREKABANK_JAVA_SOAP</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -38,7 +38,7 @@
     </dependencies>
 
     <build>
-        <finalName>ESC_CON_UNI_JAVA_SOAP</finalName>
+        <finalName>ESC_EUREKABANK_JAVA_SOAP</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

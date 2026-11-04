@@ -16,7 +16,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 class ConfiguracionTest {
 
-    private static final String CONTEXTO = "WS_CON_UNI_JAVA_SOAP-1.0-SNAPSHOT";
+    private static final String CONTEXTO = "WS_EUREKABANK_JAVA_SOAP";
 
     @Test
     void buildsTheBaseUrlAndEndpoints() {

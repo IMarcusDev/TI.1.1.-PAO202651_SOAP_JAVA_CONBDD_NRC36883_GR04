@@ -3,7 +3,7 @@
 El cliente móvil implementa las operaciones del ERS (RNF-001) y del ECUD. Este documento fija los nombres de los parámetros y de los campos de respuesta que lee el cliente, para que el servidor los publique igual.
 
 - Namespace: `http://ws.monster.edu.ec/` (el que genera JAX-WS para el paquete `ec.edu.monster.ws`).
-- URL base: `http://<IP>:8080/WS_CON_UNI_JAVA_SOAP/`, que se configura en `gradle.properties` (`servidor=...`).
+- URL base: `http://<IP>:8080/WS_EUREKABANK_JAVA_SOAP/`, que se configura en `gradle.properties` (`servidor=...`).
 - Estilo: document/literal wrapped, como lo publica Metro por defecto. Los parámetros van sin namespace.
 - Todas las respuestas llevan `estado` (`OK` o `ERROR`) y `mensaje`. El cliente lee los campos por su nombre local, sin importar en qué orden o nivel de anidamiento lleguen.
 

@@ -30,7 +30,7 @@
 </binding>
 <service name="LoginWebService">
 <port name="LoginWebServicePort" binding="tns:LoginWebServicePortBinding">
-<soap:address location="http://localhost:8080/WS_CON_UNI_JAVA_SOAP-1.0-SNAPSHOT/LoginWebService"/>
+<soap:address location="http://localhost:8080/WS_EUREKABANK_JAVA_SOAP/LoginWebService"/>
 </port>
 </service>
 </definitions>
