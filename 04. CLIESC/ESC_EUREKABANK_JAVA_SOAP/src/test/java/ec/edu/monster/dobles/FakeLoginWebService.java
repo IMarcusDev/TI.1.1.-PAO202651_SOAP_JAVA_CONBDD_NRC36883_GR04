@@ -17,6 +17,7 @@ import jakarta.jws.WebService;
 public class FakeLoginWebService implements LoginWebService {
 
     public static final String TOKEN = "token-de-prueba";
+    public static final String TOKEN_CLIENTE = "token-cliente-de-prueba";
 
     @Override
     public LoginResponseDTO login(String username, String password) {
@@ -34,6 +35,52 @@ public class FakeLoginWebService implements LoginWebService {
             respuesta.setMensaje("Contraseña incorrecta");
             respuesta.setToken("");
         }
+        return respuesta;
+    }
+
+    @Override
+    public LoginResponseDTO loginEmpleado(String usuario, String clave) {
+        if ("cajero".equals(usuario) && "cajero123".equals(clave)) {
+            return ok(TOKEN, "Carla Andrade", "Empleado");
+        }
+        return error("Credenciales incorrectas");
+    }
+
+    @Override
+    public LoginResponseDTO loginCliente(String cuenta, String clave) {
+        if ("00100001".equals(cuenta) && "123456".equals(clave)) {
+            return ok(TOKEN_CLIENTE, "Ana Torres", "Cliente");
+        }
+        if ("00100003".equals(cuenta)) {
+            return error("La cuenta no se encuentra activa");
+        }
+        return error("Credenciales incorrectas");
+    }
+
+    @Override
+    public LoginResponseDTO logout(String token) {
+        LoginResponseDTO respuesta = new LoginResponseDTO();
+        respuesta.setEstado(EstadosEnum.OK);
+        respuesta.setMensaje("Sesión cerrada");
+        return respuesta;
+    }
+
+    private static LoginResponseDTO ok(String token, String nombre, String tipoUsuario) {
+        LoginResponseDTO respuesta = new LoginResponseDTO();
+        respuesta.setEstado(EstadosEnum.OK);
+        respuesta.setMensaje("Ingreso de sesión exitoso");
+        respuesta.setToken(token);
+        respuesta.setNombre(nombre);
+        respuesta.setEstadoUsuario("ACTIVO");
+        respuesta.setTipoUsuario(tipoUsuario);
+        return respuesta;
+    }
+
+    private static LoginResponseDTO error(String mensaje) {
+        LoginResponseDTO respuesta = new LoginResponseDTO();
+        respuesta.setEstado(EstadosEnum.ERROR);
+        respuesta.setMensaje(mensaje);
+        respuesta.setToken("");
         return respuesta;
     }
 }

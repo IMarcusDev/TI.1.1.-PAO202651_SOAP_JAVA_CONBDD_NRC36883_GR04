@@ -1,12 +1,17 @@
 package ec.edu.monster.modelo;
 
+import ec.edu.monster.ws.movimiento.ConsultaMovimientosResponseDTO;
+import ec.edu.monster.ws.movimiento.CuentaDTO;
 import ec.edu.monster.ws.movimiento.EstadosEnum;
+import ec.edu.monster.ws.movimiento.MovimientoDTO;
 import ec.edu.monster.ws.movimiento.MovimientoResponseDTO;
 import ec.edu.monster.ws.movimiento.MovimientoWebService;
 import ec.edu.monster.ws.movimiento.MovimientoWebService_Service;
 import jakarta.xml.ws.BindingProvider;
 import jakarta.xml.ws.WebServiceException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 
 /**
@@ -46,7 +51,62 @@ public class MovimientoServicioSoap implements MovimientoServicio {
         return ejecutar(puerto -> puerto.transferencia(token, cuentaOrigen, cuentaDestino, valor.doubleValue()));
     }
 
-    // Shared logic of the three operations: connect, call, validate the answer
+    @Override
+    public ResultadoMovimiento registrarDeposito(String token, String cuenta, BigDecimal importe)
+            throws ServicioException {
+        return ejecutar(puerto -> puerto.registrarDeposito(token, cuenta, importe));
+    }
+
+    @Override
+    public ResultadoMovimiento registrarRetiro(String token, String cuenta, BigDecimal importe, String clave)
+            throws ServicioException {
+        return ejecutar(puerto -> puerto.registrarRetiro(token, cuenta, importe, clave));
+    }
+
+    @Override
+    public ResultadoMovimiento registrarTransferencia(String token, String cuentaOrigen, String cuentaDestino,
+            BigDecimal importe, String clave) throws ServicioException {
+        return ejecutar(puerto -> puerto.registrarTransferencia(token, cuentaOrigen, cuentaDestino, importe, clave));
+    }
+
+    @Override
+    public HistorialCuenta consultarMovimientos(String token, String cuenta) throws ServicioException {
+        ConsultaMovimientosResponseDTO respuesta;
+        try {
+            respuesta = crearPuerto().consultarMovimientos(token, cuenta);
+        } catch (WebServiceException e) {
+            throw new ServicioException(SIN_CONEXION + endpoint);
+        }
+        if (respuesta == null) {
+            throw new ServicioException(SIN_RESPUESTA);
+        }
+        if (respuesta.getEstado() != EstadosEnum.OK) {
+            throw new ServicioException(ServicioException.mensaje(respuesta.getMensaje()));
+        }
+        List<HistorialCuenta.MovimientoConsultado> filas = new ArrayList<>();
+        for (MovimientoDTO m : respuesta.getMovimientos()) {
+            if (m != null) {
+                filas.add(new HistorialCuenta.MovimientoConsultado(
+                        Formatos.numeroMovimiento(m.getNumeroMovimiento()),
+                        Formatos.fecha(m.getFecha()),
+                        m.getTipoMovimiento(),
+                        m.getAccion(),
+                        Formatos.dinero(m.getImporte()),
+                        Formatos.referencia(m.getCuentaReferencia())));
+            }
+        }
+        return new HistorialCuenta(cuenta(respuesta.getCuenta()), filas);
+    }
+
+    private static HistorialCuenta.CuentaConsultada cuenta(CuentaDTO c) {
+        if (c == null) {
+            return new HistorialCuenta.CuentaConsultada("", "", "", "", "");
+        }
+        return new HistorialCuenta.CuentaConsultada(c.getNumeroCuenta(), c.getTitular(), c.getMoneda(),
+                Formatos.dinero(c.getSaldo()), c.getEstadoCuenta());
+    }
+
+    // Shared logic of the movement operations: connect, call, validate the answer
     private ResultadoMovimiento ejecutar(Function<MovimientoWebService, MovimientoResponseDTO> operacion)
             throws ServicioException {
         MovimientoResponseDTO respuesta;
@@ -62,8 +122,10 @@ public class MovimientoServicioSoap implements MovimientoServicio {
         if (respuesta.getEstado() != EstadosEnum.OK) {
             throw new ServicioException(ServicioException.mensaje(respuesta.getMensaje()));
         }
-        return new ResultadoMovimiento(respuesta.getIdMovimiento(),
-                ServicioException.mensaje(respuesta.getMensaje()));
+        // Legacy operations answer idMovimiento; the ERS ones numeroMovimiento + nuevoSaldo
+        int numero = respuesta.getNumeroMovimiento() > 0 ? respuesta.getNumeroMovimiento() : respuesta.getIdMovimiento();
+        return new ResultadoMovimiento(numero, ServicioException.mensaje(respuesta.getMensaje()),
+                respuesta.getNuevoSaldo());
     }
 
     // A port (proxy) is not guaranteed to be thread-safe, so each call gets its own
