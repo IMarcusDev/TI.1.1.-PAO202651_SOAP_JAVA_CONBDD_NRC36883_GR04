@@ -2,16 +2,27 @@
 
 <xs:element name="login" type="tns:login"/>
 
+<xs:element name="loginCliente" type="tns:loginCliente"/>
+
+<xs:element name="loginClienteResponse" type="tns:loginClienteResponse"/>
+
+<xs:element name="loginEmpleado" type="tns:loginEmpleado"/>
+
+<xs:element name="loginEmpleadoResponse" type="tns:loginEmpleadoResponse"/>
+
 <xs:element name="loginResponse" type="tns:loginResponse"/>
 
-<xs:complexType name="login">
+<xs:element name="logout" type="tns:logout"/>
+
+<xs:element name="logoutResponse" type="tns:logoutResponse"/>
+
+<xs:complexType name="logout">
 <xs:sequence>
-<xs:element name="username" type="xs:string" minOccurs="0"/>
-<xs:element name="password" type="xs:string" minOccurs="0"/>
+<xs:element name="token" type="xs:string" minOccurs="0"/>
 </xs:sequence>
 </xs:complexType>
 
-<xs:complexType name="loginResponse">
+<xs:complexType name="logoutResponse">
 <xs:sequence>
 <xs:element name="return" type="tns:loginResponseDTO" minOccurs="0"/>
 </xs:sequence>
@@ -23,6 +34,7 @@
 <xs:sequence>
 <xs:element name="estadoUsuario" type="xs:string" minOccurs="0"/>
 <xs:element name="nombre" type="xs:string" minOccurs="0"/>
+<xs:element name="perfil" type="xs:string" minOccurs="0"/>
 <xs:element name="tipoUsuario" type="xs:string" minOccurs="0"/>
 <xs:element name="token" type="xs:string" minOccurs="0"/>
 <xs:element name="username" type="xs:string" minOccurs="0"/>
@@ -35,6 +47,45 @@
 <xs:sequence>
 <xs:element name="estado" type="tns:estadosEnum" minOccurs="0"/>
 <xs:element name="mensaje" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="loginEmpleado">
+<xs:sequence>
+<xs:element name="usuario" type="xs:string" minOccurs="0"/>
+<xs:element name="clave" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="loginEmpleadoResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:loginResponseDTO" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="loginCliente">
+<xs:sequence>
+<xs:element name="cuenta" type="xs:string" minOccurs="0"/>
+<xs:element name="clave" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="loginClienteResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:loginResponseDTO" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="login">
+<xs:sequence>
+<xs:element name="username" type="xs:string" minOccurs="0"/>
+<xs:element name="password" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="loginResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:loginResponseDTO" minOccurs="0"/>
 </xs:sequence>
 </xs:complexType>
 

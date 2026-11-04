@@ -1,8 +1,24 @@
 <?xml version='1.0' encoding='UTF-8'?><!-- Published by XML-WS Runtime (https://github.com/eclipse-ee4j/metro-jax-ws). Runtime's version is Eclipse Metro/4.0.4.payara-p1 (FISH-10142-Metro-4.0.4-fa01c0b; 2025-07-11T17:44:37+0100) XMLWS-Impl/4.0.3 XMLWS-API/4.0.2 XMLB-Impl/4.0.5 XMLB-API/4.0.2 git-revision#fa01c0b. --><xs:schema xmlns:tns="http://ws.monster.edu.ec/" xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.0" targetNamespace="http://ws.monster.edu.ec/">
 
+<xs:element name="consultarMovimientos" type="tns:consultarMovimientos"/>
+
+<xs:element name="consultarMovimientosResponse" type="tns:consultarMovimientosResponse"/>
+
 <xs:element name="deposito" type="tns:deposito"/>
 
 <xs:element name="depositoResponse" type="tns:depositoResponse"/>
+
+<xs:element name="registrarDeposito" type="tns:registrarDeposito"/>
+
+<xs:element name="registrarDepositoResponse" type="tns:registrarDepositoResponse"/>
+
+<xs:element name="registrarRetiro" type="tns:registrarRetiro"/>
+
+<xs:element name="registrarRetiroResponse" type="tns:registrarRetiroResponse"/>
+
+<xs:element name="registrarTransferencia" type="tns:registrarTransferencia"/>
+
+<xs:element name="registrarTransferenciaResponse" type="tns:registrarTransferenciaResponse"/>
 
 <xs:element name="retiro" type="tns:retiro"/>
 
@@ -11,6 +27,56 @@
 <xs:element name="transferencia" type="tns:transferencia"/>
 
 <xs:element name="transferenciaResponse" type="tns:transferenciaResponse"/>
+
+<xs:complexType name="registrarTransferencia">
+<xs:sequence>
+<xs:element name="token" type="xs:string" minOccurs="0"/>
+<xs:element name="cuentaOrigen" type="xs:string" minOccurs="0"/>
+<xs:element name="cuentaDestino" type="xs:string" minOccurs="0"/>
+<xs:element name="importe" type="xs:decimal" minOccurs="0"/>
+<xs:element name="clave" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="registrarTransferenciaResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:movimientoResponseDTO" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="movimientoResponseDTO">
+<xs:complexContent>
+<xs:extension base="tns:responseDTO">
+<xs:sequence>
+<xs:element name="idMovimiento" type="xs:int"/>
+<xs:element name="nuevoSaldo" type="xs:decimal" minOccurs="0"/>
+<xs:element name="numeroMovimiento" type="xs:int"/>
+</xs:sequence>
+</xs:extension>
+</xs:complexContent>
+</xs:complexType>
+
+<xs:complexType name="responseDTO" abstract="true">
+<xs:sequence>
+<xs:element name="estado" type="tns:estadosEnum" minOccurs="0"/>
+<xs:element name="mensaje" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="registrarRetiro">
+<xs:sequence>
+<xs:element name="token" type="xs:string" minOccurs="0"/>
+<xs:element name="cuenta" type="xs:string" minOccurs="0"/>
+<xs:element name="importe" type="xs:decimal" minOccurs="0"/>
+<xs:element name="clave" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="registrarRetiroResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:movimientoResponseDTO" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
 
 <xs:complexType name="transferencia">
 <xs:sequence>
@@ -24,23 +90,6 @@
 <xs:complexType name="transferenciaResponse">
 <xs:sequence>
 <xs:element name="return" type="tns:movimientoResponseDTO" minOccurs="0"/>
-</xs:sequence>
-</xs:complexType>
-
-<xs:complexType name="movimientoResponseDTO">
-<xs:complexContent>
-<xs:extension base="tns:responseDTO">
-<xs:sequence>
-<xs:element name="idMovimiento" type="xs:int"/>
-</xs:sequence>
-</xs:extension>
-</xs:complexContent>
-</xs:complexType>
-
-<xs:complexType name="responseDTO" abstract="true">
-<xs:sequence>
-<xs:element name="estado" type="tns:estadosEnum" minOccurs="0"/>
-<xs:element name="mensaje" type="xs:string" minOccurs="0"/>
 </xs:sequence>
 </xs:complexType>
 
@@ -71,6 +120,65 @@
 <xs:complexType name="retiroResponse">
 <xs:sequence>
 <xs:element name="return" type="tns:movimientoResponseDTO" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="registrarDeposito">
+<xs:sequence>
+<xs:element name="token" type="xs:string" minOccurs="0"/>
+<xs:element name="cuenta" type="xs:string" minOccurs="0"/>
+<xs:element name="importe" type="xs:decimal" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="registrarDepositoResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:movimientoResponseDTO" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="consultarMovimientos">
+<xs:sequence>
+<xs:element name="token" type="xs:string" minOccurs="0"/>
+<xs:element name="cuenta" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="consultarMovimientosResponse">
+<xs:sequence>
+<xs:element name="return" type="tns:consultaMovimientosResponseDTO" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="consultaMovimientosResponseDTO">
+<xs:complexContent>
+<xs:extension base="tns:responseDTO">
+<xs:sequence>
+<xs:element name="cuenta" type="tns:cuentaDTO" minOccurs="0"/>
+<xs:element name="movimientos" type="tns:movimientoDTO" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+</xs:sequence>
+</xs:extension>
+</xs:complexContent>
+</xs:complexType>
+
+<xs:complexType name="cuentaDTO">
+<xs:sequence>
+<xs:element name="estadoCuenta" type="xs:string" minOccurs="0"/>
+<xs:element name="moneda" type="xs:string" minOccurs="0"/>
+<xs:element name="numeroCuenta" type="xs:string" minOccurs="0"/>
+<xs:element name="saldo" type="xs:decimal" minOccurs="0"/>
+<xs:element name="titular" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="movimientoDTO">
+<xs:sequence>
+<xs:element name="accion" type="xs:string" minOccurs="0"/>
+<xs:element name="cuentaReferencia" type="xs:string" minOccurs="0"/>
+<xs:element name="fecha" type="xs:string" minOccurs="0"/>
+<xs:element name="importe" type="xs:decimal" minOccurs="0"/>
+<xs:element name="numeroMovimiento" type="xs:int"/>
+<xs:element name="tipoMovimiento" type="xs:string" minOccurs="0"/>
 </xs:sequence>
 </xs:complexType>
 

@@ -4,21 +4,78 @@
 <xsd:import namespace="http://ws.monster.edu.ec/" schemaLocation="LoginWebService.xsd"/>
 </xsd:schema>
 </types>
+<message name="loginEmpleado">
+<part name="parameters" element="tns:loginEmpleado"/>
+</message>
+<message name="loginEmpleadoResponse">
+<part name="parameters" element="tns:loginEmpleadoResponse"/>
+</message>
+<message name="loginCliente">
+<part name="parameters" element="tns:loginCliente"/>
+</message>
+<message name="loginClienteResponse">
+<part name="parameters" element="tns:loginClienteResponse"/>
+</message>
 <message name="login">
 <part name="parameters" element="tns:login"/>
 </message>
 <message name="loginResponse">
 <part name="parameters" element="tns:loginResponse"/>
 </message>
+<message name="logout">
+<part name="parameters" element="tns:logout"/>
+</message>
+<message name="logoutResponse">
+<part name="parameters" element="tns:logoutResponse"/>
+</message>
 <portType name="LoginWebService">
+<operation name="loginEmpleado">
+<input wsam:Action="http://ws.monster.edu.ec/LoginWebService/loginEmpleadoRequest" message="tns:loginEmpleado"/>
+<output wsam:Action="http://ws.monster.edu.ec/LoginWebService/loginEmpleadoResponse" message="tns:loginEmpleadoResponse"/>
+</operation>
+<operation name="loginCliente">
+<input wsam:Action="http://ws.monster.edu.ec/LoginWebService/loginClienteRequest" message="tns:loginCliente"/>
+<output wsam:Action="http://ws.monster.edu.ec/LoginWebService/loginClienteResponse" message="tns:loginClienteResponse"/>
+</operation>
 <operation name="login">
 <input wsam:Action="http://ws.monster.edu.ec/LoginWebService/loginRequest" message="tns:login"/>
 <output wsam:Action="http://ws.monster.edu.ec/LoginWebService/loginResponse" message="tns:loginResponse"/>
 </operation>
+<operation name="logout">
+<input wsam:Action="http://ws.monster.edu.ec/LoginWebService/logoutRequest" message="tns:logout"/>
+<output wsam:Action="http://ws.monster.edu.ec/LoginWebService/logoutResponse" message="tns:logoutResponse"/>
+</operation>
 </portType>
 <binding name="LoginWebServicePortBinding" type="tns:LoginWebService">
 <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+<operation name="loginEmpleado">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+</operation>
+<operation name="loginCliente">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+</operation>
 <operation name="login">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+</operation>
+<operation name="logout">
 <soap:operation soapAction=""/>
 <input>
 <soap:body use="literal"/>
