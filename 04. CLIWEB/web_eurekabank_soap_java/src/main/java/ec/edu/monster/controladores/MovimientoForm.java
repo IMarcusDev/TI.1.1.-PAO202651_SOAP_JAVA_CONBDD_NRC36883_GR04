@@ -1,11 +1,9 @@
 package ec.edu.monster.controladores;
 
+import ec.edu.monster.modelos.dto.Formatos;
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -70,9 +68,7 @@ public final class MovimientoForm {
 
   /** Formats an amount as "$ 1,250.00" (US style, always 2 decimals). */
   public static String formatearImporte(BigDecimal valor) {
-    // DecimalFormat is not thread-safe: a new instance per call
-    DecimalFormat formato = new DecimalFormat("#,##0.00", DecimalFormatSymbols.getInstance(Locale.US));
-    return "$ " + formato.format(valor);
+    return Formatos.dinero(valor);
   }
 
   public boolean isValido() {

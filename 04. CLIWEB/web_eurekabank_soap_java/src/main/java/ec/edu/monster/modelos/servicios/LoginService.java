@@ -7,6 +7,7 @@ import ec.edu.monster.ws.login.LoginWebService;
 import ec.edu.monster.ws.login.LoginWebService_Service;
 import jakarta.xml.ws.BindingProvider;
 import jakarta.xml.ws.WebServiceException;
+import java.util.function.Function;
 
 /**
  * Client-side access to the SOAP LoginWebService.
@@ -27,8 +28,23 @@ public class LoginService {
    * only need to check getEstado().
    */
   public LoginResponseDTO login(String username, String password) {
+    return call(port -> port.login(username, password));
+  }
+
+  /** Employee (bank teller) login with username and key. */
+  public LoginResponseDTO loginEmpleado(String usuario, String clave) {
+    return call(port -> port.loginEmpleado(usuario, clave));
+  }
+
+  /** Cliente login with the account number and its key; the token is tied to that account. */
+  public LoginResponseDTO loginCliente(String cuenta, String clave) {
+    return call(port -> port.loginCliente(cuenta, clave));
+  }
+
+  // Shared logic: create the port, run the operation, turn a connection failure into ERROR
+  private LoginResponseDTO call(Function<LoginWebService, LoginResponseDTO> operation) {
     try {
-      return createPort().login(username, password);
+      return operation.apply(createPort());
     } catch (WebServiceException e) {
       // Server down, wrong IP/port in config.properties, network error...
       LoginResponseDTO error = new LoginResponseDTO();
