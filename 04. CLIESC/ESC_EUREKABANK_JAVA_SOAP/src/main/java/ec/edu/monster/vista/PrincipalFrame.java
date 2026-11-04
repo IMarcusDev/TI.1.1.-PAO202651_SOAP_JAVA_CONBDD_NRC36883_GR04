@@ -31,15 +31,23 @@ public class PrincipalFrame extends JFrame {
 
     private final CardLayout pantallas = new CardLayout();
     private final JPanel contenido = new JPanel(pantallas);
-    private final DepositoPanel depositoPanel = new DepositoPanel();
-    private final RetiroPanel retiroPanel = new RetiroPanel();
-    private final TransferenciaPanel transferenciaPanel = new TransferenciaPanel();
+    private final DepositoPanel depositoPanel;
+    private final RetiroPanel retiroPanel;
+    private final TransferenciaPanel transferenciaPanel;
     private final IndicadorEstado indicadorEstado = new IndicadorEstado("Sesión activa · ");
     private final MenuPanel menuPanel;
 
-    public PrincipalFrame(String nombre, String tipoUsuario, Runnable alCerrarSesion) {
+    /**
+     * @param cuenta account a Cliente logged in with (their own), null for an Empleado
+     */
+    public PrincipalFrame(String nombre, String tipoUsuario, String cuenta, Runnable alCerrarSesion) {
         super(Estilos.TITULO_VENTANA);
         boolean empleado = Sesion.ROL_EMPLEADO.equals(tipoUsuario);
+        boolean cliente = Sesion.ROL_CLIENTE.equals(tipoUsuario);
+
+        depositoPanel = new DepositoPanel();
+        retiroPanel = new RetiroPanel(cliente, cuenta);
+        transferenciaPanel = new TransferenciaPanel(cliente, cuenta);
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setSize(940, 640);
