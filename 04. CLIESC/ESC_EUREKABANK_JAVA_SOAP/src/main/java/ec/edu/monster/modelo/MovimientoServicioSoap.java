@@ -34,24 +34,6 @@ public class MovimientoServicioSoap implements MovimientoServicio {
     }
 
     @Override
-    public ResultadoMovimiento deposito(String token, String cuentaOrigen, String cuentaDestino, BigDecimal valor)
-            throws ServicioException {
-        return ejecutar(puerto -> puerto.deposito(token, cuentaOrigen, cuentaDestino, valor.doubleValue()));
-    }
-
-    @Override
-    public ResultadoMovimiento retiro(String token, String cuentaOrigen, String cuentaDestino, BigDecimal valor)
-            throws ServicioException {
-        return ejecutar(puerto -> puerto.retiro(token, cuentaOrigen, cuentaDestino, valor.doubleValue()));
-    }
-
-    @Override
-    public ResultadoMovimiento transferencia(String token, String cuentaOrigen, String cuentaDestino,
-            BigDecimal valor) throws ServicioException {
-        return ejecutar(puerto -> puerto.transferencia(token, cuentaOrigen, cuentaDestino, valor.doubleValue()));
-    }
-
-    @Override
     public ResultadoMovimiento registrarDeposito(String token, String cuenta, BigDecimal importe)
             throws ServicioException {
         return ejecutar(puerto -> puerto.registrarDeposito(token, cuenta, importe));
@@ -122,10 +104,9 @@ public class MovimientoServicioSoap implements MovimientoServicio {
         if (respuesta.getEstado() != EstadosEnum.OK) {
             throw new ServicioException(ServicioException.mensaje(respuesta.getMensaje()));
         }
-        // Legacy operations answer idMovimiento; the ERS ones numeroMovimiento + nuevoSaldo
-        int numero = respuesta.getNumeroMovimiento() > 0 ? respuesta.getNumeroMovimiento() : respuesta.getIdMovimiento();
-        return new ResultadoMovimiento(numero, ServicioException.mensaje(respuesta.getMensaje()),
-                respuesta.getNuevoSaldo());
+        // The ERS operations answer numeroMovimiento + nuevoSaldo
+        return new ResultadoMovimiento(respuesta.getNumeroMovimiento(),
+                ServicioException.mensaje(respuesta.getMensaje()), respuesta.getNuevoSaldo());
     }
 
     // A port (proxy) is not guaranteed to be thread-safe, so each call gets its own

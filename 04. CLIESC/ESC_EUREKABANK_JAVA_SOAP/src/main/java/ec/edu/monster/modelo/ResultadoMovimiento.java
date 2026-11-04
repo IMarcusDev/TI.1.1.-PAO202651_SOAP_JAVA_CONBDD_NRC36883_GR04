@@ -8,7 +8,7 @@ import java.math.BigDecimal;
  */
 public record ResultadoMovimiento(int idMovimiento, String mensaje, BigDecimal nuevoSaldo) {
 
-    /** Legacy operations do not return the new balance. */
+    /** Result without a new balance (a server that does not send it, or a test). */
     public ResultadoMovimiento(int idMovimiento, String mensaje) {
         this(idMovimiento, mensaje, null);
     }

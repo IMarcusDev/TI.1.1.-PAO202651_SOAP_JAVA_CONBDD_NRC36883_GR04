@@ -35,24 +35,6 @@ public class MovimientoServicioFalso implements MovimientoServicio {
     }
 
     @Override
-    public ResultadoMovimiento deposito(String token, String cuentaOrigen, String cuentaDestino, BigDecimal valor)
-            throws ServicioException {
-        return registrar(token, cuentaOrigen, cuentaDestino, valor);
-    }
-
-    @Override
-    public ResultadoMovimiento retiro(String token, String cuentaOrigen, String cuentaDestino, BigDecimal valor)
-            throws ServicioException {
-        return registrar(token, cuentaOrigen, cuentaDestino, valor);
-    }
-
-    @Override
-    public ResultadoMovimiento transferencia(String token, String cuentaOrigen, String cuentaDestino,
-            BigDecimal valor) throws ServicioException {
-        return registrar(token, cuentaOrigen, cuentaDestino, valor);
-    }
-
-    @Override
     public ResultadoMovimiento registrarDeposito(String token, String cuenta, BigDecimal importe)
             throws ServicioException {
         operacionRecibida = "registrarDeposito";
@@ -88,7 +70,7 @@ public class MovimientoServicioFalso implements MovimientoServicio {
         return historial;
     }
 
-    /** Name of the last ERS operation called (null for the legacy ones). */
+    /** Name of the last operation called. */
     public String getOperacionRecibida() {
         return operacionRecibida;
     }
