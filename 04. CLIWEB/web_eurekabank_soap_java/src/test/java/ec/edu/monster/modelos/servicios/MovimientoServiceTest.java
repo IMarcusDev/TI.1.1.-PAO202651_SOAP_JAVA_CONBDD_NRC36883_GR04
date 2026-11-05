@@ -152,7 +152,8 @@ class MovimientoServiceTest {
       List<HistorialCuenta.MovimientoConsultado> filas = h.getMovimientos();
       assertEquals(2, filas.size());
 
-      HistorialCuenta.MovimientoConsultado deposito = filas.get(0);
+      // Newest first: the server sends 3 then 7.
+      HistorialCuenta.MovimientoConsultado deposito = filas.get(1);
       assertEquals("000003", deposito.getNumero());
       assertEquals("20/10/2026 10:00", deposito.getFecha());
       assertEquals("Depósito", deposito.getTipo());
@@ -162,7 +163,7 @@ class MovimientoServiceTest {
       assertEquals("$ 600.00", deposito.getImporteFormateado());
       assertEquals("-", deposito.getReferencia());
 
-      HistorialCuenta.MovimientoConsultado transferencia = filas.get(1);
+      HistorialCuenta.MovimientoConsultado transferencia = filas.get(0);
       assertEquals("000007", transferencia.getNumero());
       assertEquals("28/10/2026 11:20", transferencia.getFecha());
       assertEquals("Transferencia", transferencia.getTipo());

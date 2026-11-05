@@ -93,14 +93,15 @@ class MovimientoRegistroSoapTest {
         assertEquals("consultarMovimientos|" + FakeLoginWebService.TOKEN_CLIENTE + "|00100001", fake.ultimaLlamada);
         assertEquals(new HistorialCuenta.CuentaConsultada("00100001", "Ana Torres", "USD", "$ 1,250.00", "ACTIVO"),
                 historial.cuenta());
+        // Newest first: the server sends 3 then 7.
         assertEquals(List.of(
-                new HistorialCuenta.MovimientoConsultado("000003", "20/10/2026 10:00", "Depósito", "INGRESO",
-                        "$ 600.00", "-"),
                 new HistorialCuenta.MovimientoConsultado("000007", "28/10/2026 11:20", "Transferencia", "SALIDA",
-                        "$ 200.00", "00100002")),
+                        "$ 200.00", "00100002"),
+                new HistorialCuenta.MovimientoConsultado("000003", "20/10/2026 10:00", "Depósito", "INGRESO",
+                        "$ 600.00", "-")),
                 historial.movimientos());
-        assertTrue(historial.movimientos().get(0).esIngreso());
-        assertFalse(historial.movimientos().get(1).esIngreso());
+        assertFalse(historial.movimientos().get(0).esIngreso());
+        assertTrue(historial.movimientos().get(1).esIngreso());
         assertFalse(historial.sinMovimientos());
     }
 
