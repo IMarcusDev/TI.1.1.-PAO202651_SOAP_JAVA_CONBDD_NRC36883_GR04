@@ -19,7 +19,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * AuthFilter runs before the protected controllers:
- * no login -> /login, a Cliente on an employee-only screen -> /menu.
+ * no login -> /login, a Cliente on an employee-only screen (/deposito) -> /menu.
+ * A Cliente reaches /retiro, /transferencia and /movimientos (limited to their own account by the controllers).
  */
 class AuthFilterTest {
   private static final String CTX = "/web_eurekabank_soap_java";
@@ -54,7 +55,7 @@ class AuthFilterTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"/menu", "/retiro", "/transferencia", "/deposito"})
+  @ValueSource(strings = {"/menu", "/retiro", "/transferencia", "/deposito", "/movimientos"})
   void withoutSessionGoesToLogin(String path) throws Exception {
     givenRequest(path, null, null);
     filter.doFilter(request, response, chain);
@@ -62,27 +63,33 @@ class AuthFilterTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"/menu", "/retiro", "/transferencia", "/deposito"})
+  @ValueSource(strings = {"/menu", "/retiro", "/transferencia", "/deposito", "/movimientos"})
   void blankTokenGoesToLogin(String path) throws Exception {
     givenRequest(path, " ", "Empleado");
     filter.doFilter(request, response, chain);
     assertBlockedTo("/login");
   }
 
-  @ParameterizedTest
-  @ValueSource(strings = {"/retiro", "/transferencia", "/deposito"})
-  void clienteCannotOpenEmployeeScreens(String path) throws Exception {
-    givenRequest(path, "token", "Cliente");
+  @Test
+  void clienteCannotOpenDeposito() throws Exception {
+    givenRequest("/deposito", "token", "Cliente");
+    filter.doFilter(request, response, chain);
+    assertBlockedTo("/menu");
+  }
+
+  @Test
+  void sessionWithoutRoleCannotOpenDeposito() throws Exception {
+    givenRequest("/deposito", "token", null);
     filter.doFilter(request, response, chain);
     assertBlockedTo("/menu");
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"/retiro", "/transferencia", "/deposito"})
-  void sessionWithoutRoleCannotOpenEmployeeScreens(String path) throws Exception {
-    givenRequest(path, "token", null);
+  @ValueSource(strings = {"/retiro", "/transferencia", "/movimientos"})
+  void clienteOpensOwnAccountOperations(String path) throws Exception {
+    givenRequest(path, "token", "Cliente");
     filter.doFilter(request, response, chain);
-    assertBlockedTo("/menu");
+    assertPassesThrough();
   }
 
   @Test
@@ -97,7 +104,7 @@ class AuthFilterTest {
   @ParameterizedTest
   @ValueSource(strings = {"empleado", "EMPLEADO", " Empleado"})
   void roleMustMatchExactly(String tipoUsuario) throws Exception {
-    givenRequest("/transferencia", "token", tipoUsuario);
+    givenRequest("/deposito", "token", tipoUsuario);
     filter.doFilter(request, response, chain);
     assertBlockedTo("/menu");
   }
@@ -111,7 +118,7 @@ class AuthFilterTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"/retiro", "/transferencia", "/deposito"})
+  @ValueSource(strings = {"/retiro", "/transferencia", "/deposito", "/movimientos"})
   void empleadoOpensEmployeeScreens(String path) throws Exception {
     givenRequest(path, "token", "Empleado");
     filter.doFilter(request, response, chain);

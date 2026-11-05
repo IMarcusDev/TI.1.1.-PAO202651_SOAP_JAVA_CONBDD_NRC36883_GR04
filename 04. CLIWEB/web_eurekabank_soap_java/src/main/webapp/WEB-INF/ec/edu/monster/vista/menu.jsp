@@ -31,14 +31,13 @@
         </div>
 
         <div class="cards">
-            <%-- Not available yet: rendered disabled, without link --%>
-            <div class="card card--disabled" aria-disabled="true">
+            <a class="card" href="${ctx}/movimientos">
                 <span class="card__icon" aria-hidden="true">C</span>
                 <span class="card__title">Consultar movimientos</span>
                 <span class="card__text">Ver saldo e historial de una cuenta</span>
-                <span class="card__soon">Próximamente</span>
-            </div>
-            <%-- Employee-only screens (AuthFilter): a Cliente sees them disabled --%>
+            </a>
+            <%-- Depósito is employee-only (AuthFilter): a Cliente sees it disabled and
+                 uses Retiro / Transferencia on their own account --%>
             <c:choose>
                 <c:when test="${sessionScope.tipoUsuario eq 'Empleado'}">
                     <a class="card" href="${ctx}/deposito">
@@ -64,18 +63,16 @@
                         <span class="card__text">Registrar un ingreso en una cuenta</span>
                         <span class="card__soon">Próximamente</span>
                     </div>
-                    <div class="card card--disabled" aria-disabled="true">
+                    <a class="card" href="${ctx}/retiro">
                         <span class="card__icon" aria-hidden="true">R</span>
                         <span class="card__title">Retiro</span>
                         <span class="card__text">Registrar una salida de su cuenta</span>
-                        <span class="card__soon">Próximamente</span>
-                    </div>
-                    <div class="card card--disabled" aria-disabled="true">
+                    </a>
+                    <a class="card" href="${ctx}/transferencia">
                         <span class="card__icon" aria-hidden="true">T</span>
                         <span class="card__title">Transferencia</span>
                         <span class="card__text">Mover fondos desde su cuenta</span>
-                        <span class="card__soon">Próximamente</span>
-                    </div>
+                    </a>
                 </c:otherwise>
             </c:choose>
         </div>

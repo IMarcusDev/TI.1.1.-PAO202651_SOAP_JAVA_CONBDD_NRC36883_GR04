@@ -3,6 +3,7 @@ package ec.edu.monster;
 import ec.edu.monster.controlador.EstadoControlador;
 import ec.edu.monster.controlador.LoginControlador;
 import ec.edu.monster.controlador.MovimientoControlador;
+import ec.edu.monster.controlador.MovimientosControlador;
 import ec.edu.monster.modelo.Comprobantes;
 import ec.edu.monster.modelo.Configuracion;
 import ec.edu.monster.modelo.EstadoServidor;
@@ -69,7 +70,8 @@ public final class App {
         PrincipalFrame principal;
         try {
             servicio = new MovimientoServicioSoap(configuracion);
-            principal = new PrincipalFrame(sesion.getNombre(), sesion.getTipoUsuario(), this::cerrarSesion);
+            principal = new PrincipalFrame(sesion.getNombre(), sesion.getTipoUsuario(), sesion.getCuenta(),
+                    this::cerrarSesion);
         } catch (RuntimeException | LinkageError e) {
             error(SIN_CONEXION);
             return;
@@ -79,22 +81,25 @@ public final class App {
     }
 
     private void conectar(PrincipalFrame principal, MovimientoServicio servicio) {
-        new MovimientoControlador(principal.getDepositoPanel(), sesion,
-                form -> "¿Depositar " + form.getImporteFormateado() + " en la cuenta " + form.getCuenta()
-                        + " del empleado " + form.getEmpleado() + "?",
-                (token, form) -> Comprobantes.deposito(form,
-                        servicio.deposito(token, form.getEmpleado(), form.getCuenta(), form.getImporte())));
+        new MovimientosControlador(principal.getMovimientosPanel(), sesion, servicio);
 
+        new MovimientoControlador(principal.getDepositoPanel(), sesion,
+                form -> "¿Depositar " + form.getImporteFormateado() + " en la cuenta " + form.getCuenta() + "?",
+                (token, form) -> Comprobantes.deposito(form,
+                        servicio.registrarDeposito(token, form.getCuenta(), form.getImporte())));
+
+        // A Cliente sends no key (own account, tied to the token); an Empleado sends the typed one
         new MovimientoControlador(principal.getRetiroPanel(), sesion,
                 form -> "¿Retirar " + form.getImporteFormateado() + " de la cuenta " + form.getCuenta() + "?",
                 (token, form) -> Comprobantes.retiro(form,
-                        servicio.retiro(token, form.getCuenta(), "", form.getImporte())));
+                        servicio.registrarRetiro(token, form.getCuenta(), form.getImporte(), form.getClave())));
 
         new MovimientoControlador(principal.getTransferenciaPanel(), sesion,
                 form -> "¿Transferir " + form.getImporteFormateado() + " de la cuenta " + form.getOrigen()
                         + " a la cuenta " + form.getDestino() + "?",
                 (token, form) -> Comprobantes.transferencia(form,
-                        servicio.transferencia(token, form.getOrigen(), form.getDestino(), form.getImporte())));
+                        servicio.registrarTransferencia(token, form.getOrigen(), form.getDestino(),
+                                form.getImporte(), form.getClave())));
     }
 
     private void cerrarSesion() {

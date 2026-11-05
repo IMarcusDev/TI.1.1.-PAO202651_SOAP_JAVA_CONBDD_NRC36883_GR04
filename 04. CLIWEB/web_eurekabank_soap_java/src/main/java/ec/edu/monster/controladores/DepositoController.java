@@ -21,6 +21,8 @@ import java.util.Map;
  * POST /deposito paso=revisar    -> validates and shows the confirmation
  * POST /deposito paso=editar     -> back to the form keeping the values
  * POST /deposito paso=confirmar  -> re-validates, calls the SOAP service and redirects (PRG)
+ * Employee-only (AuthFilter). The ERS server takes the employee from the token, so the form
+ * only has the target account and the amount; a deposit needs no account key.
  */
 @WebServlet(name = "DepositoController", urlPatterns = {"/deposito"})
 public class DepositoController extends HttpServlet {
@@ -75,25 +77,23 @@ public class DepositoController extends HttpServlet {
     response.setHeader("Cache-Control", "no-store");
 
     String paso = request.getParameter("paso");
-    String empleado = request.getParameter("empleado");
     String cuenta = request.getParameter("cuenta");
     String importe = request.getParameter("importe");
 
     if ("editar".equals(paso)) {
-      showForm(request, response, empleado, cuenta, importe);
+      showForm(request, response, cuenta, importe);
       return;
     }
 
     // Always validated, also on confirm: hidden fields can be tampered with
-    MovimientoForm form = MovimientoForm.deposito(empleado, cuenta, importe);
+    MovimientoForm form = MovimientoForm.deposito(cuenta, importe);
     if (!form.isValido()) {
       request.setAttribute("errores", form.getErrores());
-      showForm(request, response, empleado, cuenta, importe);
+      showForm(request, response, cuenta, importe);
       return;
     }
 
     if (!"confirmar".equals(paso)) {
-      request.setAttribute("empleado", form.getEmpleado());
       request.setAttribute("cuenta", form.getCuenta());
       request.setAttribute("importe", form.getImporte().toPlainString());
       request.setAttribute("importeFormateado", form.getImporteFormateado());
@@ -101,24 +101,25 @@ public class DepositoController extends HttpServlet {
       return;
     }
 
-    // cuenta_origen is the employee code: the server checks it belongs to an employee
-    MovimientoResponseDTO resultado = movimientoService.deposito(
-        token, form.getEmpleado(), form.getCuenta(), form.getImporte().doubleValue());
+    MovimientoResponseDTO resultado =
+        movimientoService.registrarDeposito(token, form.getCuenta(), form.getImporte());
 
     if (resultado == null || resultado.getEstado() != EstadosEnum.OK) {
       request.setAttribute("error", resultado == null
           ? "No se pudo registrar el depósito" : resultado.getMensaje());
-      showForm(request, response, empleado, cuenta, importe);
+      showForm(request, response, cuenta, importe);
       return;
     }
 
     // Only Strings in the session (the generated DTO is not Serializable)
     Map<String, String> comprobante = new LinkedHashMap<>();
     comprobante.put("operacion", "Depósito");
-    comprobante.put("empleado", form.getEmpleado());
     comprobante.put("cuenta", form.getCuenta());
     comprobante.put("importe", form.getImporteFormateado());
-    comprobante.put("idMovimiento", String.valueOf(resultado.getIdMovimiento()));
+    comprobante.put("idMovimiento", String.valueOf(resultado.getNumeroMovimiento()));
+    if (resultado.getNuevoSaldo() != null) {
+      comprobante.put("nuevoSaldo", MovimientoForm.formatearImporte(resultado.getNuevoSaldo()));
+    }
     comprobante.put("fecha", LocalDateTime.now().format(FECHA));
     comprobante.put("mensaje", resultado.getMensaje());
     session.setAttribute(FLASH, comprobante);
@@ -129,8 +130,7 @@ public class DepositoController extends HttpServlet {
 
   // Form state keeping what the user typed
   private void showForm(HttpServletRequest request, HttpServletResponse response,
-      String empleado, String cuenta, String importe) throws ServletException, IOException {
-    request.setAttribute("empleado", empleado);
+      String cuenta, String importe) throws ServletException, IOException {
     request.setAttribute("cuenta", cuenta);
     request.setAttribute("importe", importe);
     render(request, response, "formulario");

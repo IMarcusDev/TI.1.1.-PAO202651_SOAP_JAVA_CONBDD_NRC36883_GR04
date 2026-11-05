@@ -4,6 +4,30 @@
 <xsd:import namespace="http://ws.monster.edu.ec/" schemaLocation="MovimientoWebService.xsd"/>
 </xsd:schema>
 </types>
+<message name="consultarMovimientos">
+<part name="parameters" element="tns:consultarMovimientos"/>
+</message>
+<message name="consultarMovimientosResponse">
+<part name="parameters" element="tns:consultarMovimientosResponse"/>
+</message>
+<message name="registrarDeposito">
+<part name="parameters" element="tns:registrarDeposito"/>
+</message>
+<message name="registrarDepositoResponse">
+<part name="parameters" element="tns:registrarDepositoResponse"/>
+</message>
+<message name="registrarRetiro">
+<part name="parameters" element="tns:registrarRetiro"/>
+</message>
+<message name="registrarRetiroResponse">
+<part name="parameters" element="tns:registrarRetiroResponse"/>
+</message>
+<message name="registrarTransferencia">
+<part name="parameters" element="tns:registrarTransferencia"/>
+</message>
+<message name="registrarTransferenciaResponse">
+<part name="parameters" element="tns:registrarTransferenciaResponse"/>
+</message>
 <message name="deposito">
 <part name="parameters" element="tns:deposito"/>
 </message>
@@ -23,6 +47,22 @@
 <part name="parameters" element="tns:transferenciaResponse"/>
 </message>
 <portType name="MovimientoWebService">
+<operation name="consultarMovimientos">
+<input wsam:Action="http://ws.monster.edu.ec/MovimientoWebService/consultarMovimientosRequest" message="tns:consultarMovimientos"/>
+<output wsam:Action="http://ws.monster.edu.ec/MovimientoWebService/consultarMovimientosResponse" message="tns:consultarMovimientosResponse"/>
+</operation>
+<operation name="registrarDeposito">
+<input wsam:Action="http://ws.monster.edu.ec/MovimientoWebService/registrarDepositoRequest" message="tns:registrarDeposito"/>
+<output wsam:Action="http://ws.monster.edu.ec/MovimientoWebService/registrarDepositoResponse" message="tns:registrarDepositoResponse"/>
+</operation>
+<operation name="registrarRetiro">
+<input wsam:Action="http://ws.monster.edu.ec/MovimientoWebService/registrarRetiroRequest" message="tns:registrarRetiro"/>
+<output wsam:Action="http://ws.monster.edu.ec/MovimientoWebService/registrarRetiroResponse" message="tns:registrarRetiroResponse"/>
+</operation>
+<operation name="registrarTransferencia">
+<input wsam:Action="http://ws.monster.edu.ec/MovimientoWebService/registrarTransferenciaRequest" message="tns:registrarTransferencia"/>
+<output wsam:Action="http://ws.monster.edu.ec/MovimientoWebService/registrarTransferenciaResponse" message="tns:registrarTransferenciaResponse"/>
+</operation>
 <operation name="deposito">
 <input wsam:Action="http://ws.monster.edu.ec/MovimientoWebService/depositoRequest" message="tns:deposito"/>
 <output wsam:Action="http://ws.monster.edu.ec/MovimientoWebService/depositoResponse" message="tns:depositoResponse"/>
@@ -38,6 +78,42 @@
 </portType>
 <binding name="MovimientoWebServicePortBinding" type="tns:MovimientoWebService">
 <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+<operation name="consultarMovimientos">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+</operation>
+<operation name="registrarDeposito">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+</operation>
+<operation name="registrarRetiro">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+</operation>
+<operation name="registrarTransferencia">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+</operation>
 <operation name="deposito">
 <soap:operation soapAction=""/>
 <input>

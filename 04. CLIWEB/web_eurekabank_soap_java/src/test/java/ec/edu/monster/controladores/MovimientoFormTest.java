@@ -77,26 +77,24 @@ class MovimientoFormTest {
         form.getErrores().get("destino"));
   }
 
+  // The ERS server takes the employee from the token: a deposit only needs the account
   @Test
-  void depositRequiresEmployeeAndTargetAccount() {
-    MovimientoForm form = MovimientoForm.deposito(" ", null, "10");
+  void depositRequiresTargetAccount() {
+    MovimientoForm form = MovimientoForm.deposito(null, "10");
 
     assertFalse(form.isValido());
-    assertEquals("Ingrese el código de empleado", form.getErrores().get("empleado"));
     assertEquals("Ingrese la cuenta de destino", form.getErrores().get("cuenta"));
+    assertEquals(1, form.getErrores().size());
   }
 
   @Test
-  void depositTrimsIdsAndLimitsThemTo30Characters() {
-    MovimientoForm form = MovimientoForm.deposito(" 0001 ", " 0004 ", "100");
+  void depositTrimsAccountAndLimitsItTo30Characters() {
+    MovimientoForm form = MovimientoForm.deposito(" 0004 ", "100");
     assertTrue(form.isValido(), () -> form.getErrores().toString());
-    assertEquals("0001", form.getEmpleado());
     assertEquals("0004", form.getCuenta());
 
-    MovimientoForm largo = MovimientoForm.deposito("1".repeat(31), "2".repeat(31), "10");
-    assertTrue(largo.getErrores().containsKey("empleado"));
-    assertTrue(largo.getErrores().containsKey("cuenta"));
-    assertTrue(MovimientoForm.deposito("1".repeat(30), "2".repeat(30), "10").isValido());
+    assertTrue(MovimientoForm.deposito("2".repeat(31), "10").getErrores().containsKey("cuenta"));
+    assertTrue(MovimientoForm.deposito("2".repeat(30), "10").isValido());
   }
 
   @Test

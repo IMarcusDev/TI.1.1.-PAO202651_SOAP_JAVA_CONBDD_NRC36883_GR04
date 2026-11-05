@@ -132,3 +132,54 @@ a.btn {
     width: 100%;
   }
 }
+
+/* ===== Consultar movimientos: account data + movement table ===== */
+.history {
+  width: 880px;
+}
+
+.history__scroll {
+  overflow-x: auto;
+}
+
+.history__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.history__table th,
+.history__table td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--gray-300);
+  white-space: nowrap;
+}
+
+.history__table th {
+  background: var(--gray-100);
+  color: var(--gray-600);
+  font-weight: 600;
+}
+
+.history__table .history__amount {
+  text-align: right;
+}
+
+.history__action {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.history__action--in {
+  background: var(--success-50);
+  color: var(--success-600);
+}
+
+.history__action--out {
+  background: var(--danger-50);
+  color: var(--danger-600);
+}

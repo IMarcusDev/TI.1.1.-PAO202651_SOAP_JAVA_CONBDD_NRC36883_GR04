@@ -10,6 +10,7 @@ public class LoginVistaFalsa implements LoginVista {
     private Runnable accionIngresar = () -> { };
     private String usuario = "";
     private String clave = "";
+    private boolean cliente;
     private String error;
     private boolean menuAbierto;
     private int erroresMostrados;
@@ -17,6 +18,11 @@ public class LoginVistaFalsa implements LoginVista {
     public void escribir(String usuario, String clave) {
         this.usuario = usuario;
         this.clave = clave;
+    }
+
+    /** Selects the "Cliente" role in the fake login screen. */
+    public void comoCliente() {
+        this.cliente = true;
     }
 
     public void ingresar() {
@@ -31,6 +37,11 @@ public class LoginVistaFalsa implements LoginVista {
     @Override
     public String getClave() {
         return clave;
+    }
+
+    @Override
+    public boolean esCliente() {
+        return cliente;
     }
 
     @Override

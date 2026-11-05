@@ -6,6 +6,7 @@ import ec.edu.monster.ws.login.LoginWebService;
 import ec.edu.monster.ws.login.LoginWebService_Service;
 import jakarta.xml.ws.BindingProvider;
 import jakarta.xml.ws.WebServiceException;
+import java.util.function.Function;
 
 /**
  * Real implementation of {@link LoginServicio}: calls the SOAP LoginWebService
@@ -27,10 +28,21 @@ public class LoginServicioSoap implements LoginServicio {
     }
 
     @Override
-    public DatosSesion iniciarSesion(String usuario, String clave) throws ServicioException {
+    public DatosSesion iniciarSesionEmpleado(String usuario, String clave) throws ServicioException {
+        return autenticar(puerto -> puerto.loginEmpleado(usuario, clave));
+    }
+
+    @Override
+    public DatosSesion iniciarSesionCliente(String cuenta, String clave) throws ServicioException {
+        return autenticar(puerto -> puerto.loginCliente(cuenta, clave));
+    }
+
+    // Shared logic of both logins: connect, call, validate the answer
+    private DatosSesion autenticar(Function<LoginWebService, LoginResponseDTO> operacion)
+            throws ServicioException {
         LoginResponseDTO respuesta;
         try {
-            respuesta = crearPuerto().login(usuario, clave);
+            respuesta = operacion.apply(crearPuerto());
         } catch (WebServiceException e) {
             // Server down, wrong host/port in config.properties, network error...
             throw new ServicioException(SIN_CONEXION + endpoint);

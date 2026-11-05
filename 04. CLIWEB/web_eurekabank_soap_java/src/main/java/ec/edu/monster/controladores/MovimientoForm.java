@@ -1,17 +1,15 @@
 package ec.edu.monster.controladores;
 
+import ec.edu.monster.modelos.dto.Formatos;
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
  * Validation of the withdrawal / deposit / transfer forms (plain Java, no servlet API).
- * Errors are kept per field name (cuenta, empleado, origen, destino, importe) so the
+ * Errors are kept per field name (cuenta, origen, destino, importe) so the
  * view can show each message under its input.
  */
 public final class MovimientoForm {
@@ -30,7 +28,6 @@ public final class MovimientoForm {
 
   private final Map<String, String> errores = new LinkedHashMap<>();
   private String cuenta;
-  private String empleado;
   private String origen;
   private String destino;
   private BigDecimal importe;
@@ -46,10 +43,9 @@ public final class MovimientoForm {
     return form;
   }
 
-  /** Deposit: employee code (sent as the source id), target account and the amount. */
-  public static MovimientoForm deposito(String empleado, String cuenta, String importe) {
+  /** Deposit: target account and the amount (the server takes the employee from the token). */
+  public static MovimientoForm deposito(String cuenta, String importe) {
     MovimientoForm form = new MovimientoForm();
-    form.empleado = form.validarCuenta("empleado", empleado, "Ingrese el código de empleado");
     form.cuenta = form.validarCuenta("cuenta", cuenta, "Ingrese la cuenta de destino");
     form.importe = form.validarImporte(importe);
     return form;
@@ -70,9 +66,7 @@ public final class MovimientoForm {
 
   /** Formats an amount as "$ 1,250.00" (US style, always 2 decimals). */
   public static String formatearImporte(BigDecimal valor) {
-    // DecimalFormat is not thread-safe: a new instance per call
-    DecimalFormat formato = new DecimalFormat("#,##0.00", DecimalFormatSymbols.getInstance(Locale.US));
-    return "$ " + formato.format(valor);
+    return Formatos.dinero(valor);
   }
 
   public boolean isValido() {
@@ -85,10 +79,6 @@ public final class MovimientoForm {
 
   public String getCuenta() {
     return cuenta;
-  }
-
-  public String getEmpleado() {
-    return empleado;
   }
 
   public String getOrigen() {
